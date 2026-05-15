@@ -2835,3 +2835,22 @@ footer h2{
     z-index:1;
   }
 }
+
+
+/* v30: clean empty state */
+.empty-featured{
+  background:var(--card) !important;
+  color:var(--text);
+  pointer-events:none;
+}
+
+.empty-events{
+  color:var(--panelText);
+  font-weight:900;
+  line-height:1.4;
+  opacity:.7;
+}
+
+.empty-rotation .cover-art{
+  background:linear-gradient(135deg, var(--accent), var(--acid));
+}

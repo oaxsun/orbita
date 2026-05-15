@@ -58,31 +58,7 @@
 
     <section class="featured-layout">
       <section class="featured-carousel" id="featuredCarousel">
-        <div class="featured-track" id="featuredTrack">
-          <a class="featured-slide active" href="article.html?id=anime-song" style="--bgimg:url('https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=1600&q=80')">
-            <span class="pickup">PICKUP 🚀</span>
-            <p class="tiny">01 · NOTA DEL DÍA</p>
-            <h2>FKA TWIGS LANZA “EUSEXUA” Y ANUNCIA GIRA MUNDIAL</h2>
-            <p class="desc">El nuevo álbum es una exploración íntima y electrónica de club, cuerpo y transformación.</p>
-            <span class="read-btn">LEER ARTÍCULO →</span>
-          </a>
-
-          <a class="featured-slide" href="article.html?id=primavera-sound-2025" style="--bgimg:url('https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1600&q=80')">
-            <span class="pickup">PICKUP 🔥</span>
-            <p class="tiny">02 · FESTIVALES</p>
-            <h2>PRIMAVERA SOUND 2025: EL LINEUP COMPLETO</h2>
-            <p class="desc">El festival apuesta por una mezcla de pop alternativo, electrónica de club y nombres de culto.</p>
-            <span class="read-btn">LEER ARTÍCULO →</span>
-          </a>
-
-          <a class="featured-slide" href="article.html?id=arca-persistence" style="--bgimg:url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=80')">
-            <span class="pickup">PICKUP 💿</span>
-            <p class="tiny">03 · LANZAMIENTO</p>
-            <h2>ARCA ESTRENA NUEVO SENCILLO: “PERSISTENCE”</h2>
-            <p class="desc">Una pieza entre glitch emocional, textura industrial y belleza sintética.</p>
-            <span class="read-btn">LEER ARTÍCULO →</span>
-          </a>
-        </div>
+        <div class="featured-track" id="featuredTrack"></div>
 
         <div class="carousel-controls">
           <button type="button" id="prevFeatured">←</button>
@@ -97,12 +73,7 @@
           <h3>PRÓXIMOS EVENTOS</h3>
         </div>
 
-        <div class="events-list">
-          <div class="event-row"><strong>17<span>MAY</span></strong><p>Primavera Sound 2025<br><small>Barcelona, ES</small></p></div>
-          <div class="event-row"><strong>24<span>MAY</span></strong><p>Charli XCX<br><small>Pepsi Center CDMX</small></p></div>
-          <div class="event-row"><strong>30<span>MAY</span></strong><p>Cazriel & Paco Amoroso<br><small>Foro Indie Rocks</small></p></div>
-          <div class="event-row"><strong>07<span>JUN</span></strong><p>Tyler, The Creator<br><small>Palacio de los Deportes</small></p></div>
-        </div>
+        <div class="events-list"></div>
 
         <a class="events-more" href="events.html">VER MÁS EVENTOS →</a>
       </aside>
@@ -129,24 +100,18 @@
       </div>
 
       <div class="now-playing-grid">
-        <article class="now-main" id="rotationViewer">
-          <div class="cover-art" id="rotationCover" style="--cover:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80')"></div>
+        <article class="now-main empty-rotation" id="rotationViewer">
+          <div class="cover-art" id="rotationCover"></div>
           <div>
-            <span id="rotationLabel">EDITOR'S PICK</span>
-            <h3 id="rotationTitle">Eusexua</h3>
-            <p id="rotationArtist">FKA twigs</p>
-            <small id="rotationDesc">Un disco para escuchar entre club oscuro, pop experimental y movimiento corporal.</small>
-            <a id="rotationRead" class="rotation-read-btn" href="article.html?id=review-eusexua">LEER →</a>
+            <span id="rotationLabel">EN ROTACIÓN</span>
+            <h3 id="rotationTitle">Sin selección</h3>
+            <p id="rotationArtist">Agrega reseñas desde el administrador</p>
+            <small id="rotationDesc">Aquí aparecerán tus picks editoriales cuando los configures.</small>
+            <a id="rotationRead" class="rotation-read-btn" href="#">LEER →</a>
           </div>
         </article>
 
-        <div class="track-list rotation-selector" id="rotationSelector">
-          <button type="button" class="active" data-title="Eusexua" data-artist="FKA twigs" data-desc="Un disco para escuchar entre club oscuro, pop experimental y movimiento corporal." data-label="EDITOR'S PICK" data-symbol="◎" data-link="article.html?id=review-eusexua" data-cover="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80"><strong>01</strong><div><h4>Eusexua</h4><p>FKA twigs · R&B / Club</p></div></button>
-          <button type="button" data-title="Persistence" data-artist="Arca" data-desc="Ruido emocional, belleza sintética y texturas que parecen romperse en tiempo real." data-label="EXPERIMENTAL" data-symbol="◈" data-link="article.html?id=review-persistence" data-cover="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80"><strong>02</strong><div><h4>Persistence</h4><p>Arca · Experimental</p></div></button>
-          <button type="button" data-title="Brat" data-artist="Charli XCX" data-desc="Pop de club, estética verde radioactiva y una actitud que domina la conversación cultural." data-label="POP CULTURE" data-symbol="✦" data-link="article.html?id=review-brat" data-cover="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80"><strong>03</strong><div><h4>Brat</h4><p>Charli XCX · Pop</p></div></button>
-          <button type="button" data-title="Dreams" data-artist="Yukimi" data-desc="R&B cálido, nocturno y suave para escuchar cuando quieres bajar la velocidad." data-label="SOFT PICK" data-symbol="◌" data-link="article.html?id=review-yukimi" data-cover="https://images.unsplash.com/photo-1487180144351-b8472da7d491?auto=format&fit=crop&w=800&q=80"><strong>04</strong><div><h4>Dreams</h4><p>Yukimi · R&B</p></div></button>
-          <button type="button" data-title="Club Sentimental" data-artist="Playlist Órbita" data-desc="Una selección editorial para bailar con nostalgia, sintetizadores y corazón roto." data-label="PLAYLIST" data-symbol="✺" data-link="article.html?id=review-club-sentimental" data-cover="https://images.unsplash.com/photo-1571266028243-d220c9c3b429?auto=format&fit=crop&w=800&q=80"><strong>05</strong><div><h4>Club Sentimental</h4><p>Órbita · Electrónica</p></div></button>
-        </div>
+        <div class="track-list rotation-selector" id="rotationSelector"></div>
       </div>
     </section>
 

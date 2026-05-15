@@ -215,3 +215,18 @@ v28:
 - Se removió ADMIN del menú público.
 - Carga pública sin orderBy para evitar fallos por campos faltantes.
 - Console log: "Órbita Firebase loaded" muestra cuántos artículos/eventos cargó.
+
+
+v29:
+- data.js quedó vacío: const ARTICLES = [].
+- La web pública ya no usa artículos demo como fallback.
+- Si Firestore carga artículos pero no hay hero configurado, el hero usa los 3 más recientes.
+- Si Firestore no carga, la web aparecerá vacía en vez de mostrar demos.
+
+
+v30:
+- Eliminado todo contenido hardcodeado de Destacadas.
+- Eliminado todo contenido hardcodeado de En Rotación.
+- Eliminado todo contenido hardcodeado de Eventos en home.
+- data.js vacío.
+- Todo el contenido real debe agregarse desde el administrador/Firestore.
