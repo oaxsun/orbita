@@ -104,3 +104,10 @@ v14:
 
 v15:
 - Eliminado el icono/símbolo encima de la portada del álbum en En Rotación.
+
+
+v16:
+- Mobile: dots del carrusel más pequeños.
+- Mobile: New Topics recupera imagen de fondo con degradado y preview text.
+- Todas las News: se eliminó número izquierdo.
+- Todas las News mantiene degradado de imagen.

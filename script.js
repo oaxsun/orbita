@@ -82,8 +82,8 @@ function renderArticles(){
   if(!isNewsPage) filtered = filtered.slice(0, 5);
 
   grid.innerHTML = filtered.map((article, index) => `
-    <a class="topic-card article-link news-style-card" href="article.html?id=${article.id}" style="--cardimg:url('${article.image}')">
-      <div class="number">${String(index + 1).padStart(2,"0")}</div>
+    <a class="topic-card article-link news-style-card ${isNewsPage ? "archive-card" : ""}" href="article.html?id=${article.id}" style="--cardimg:url('${article.image}')">
+      ${isNewsPage ? "" : `<div class="number">${String(index + 1).padStart(2,"0")}</div>`}
       <div class="content">
         <span class="tag-mini">${article.category}</span>
         <h3>${article.title}</h3>
