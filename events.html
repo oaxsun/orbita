@@ -38,7 +38,6 @@
       <a href="news.html">NEWS →</a>
       <a href="events.html">EVENTOS →</a>
       <a href="news.html#tags">TAGS →</a>
-      <a href="admin/">ADMIN →</a>
     </div>
   </div>
 
@@ -100,9 +99,7 @@
       collection,
       doc,
       getDocs,
-      getDoc,
-      query,
-      orderBy
+      getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -117,32 +114,48 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    function articleTime(a){
+      if(a.publishAt) return new Date(a.publishAt).getTime() || 0;
+      if(a.createdAt) return new Date(a.createdAt).getTime() || 0;
+      return 0;
+    }
+
     window.orbitaLoadFirebaseContent = async function(){
+      window.ORBITA_FIREBASE_READY = false;
+
       try{
-        const articlesSnap = await getDocs(query(collection(db, "articles"), orderBy("createdAt", "desc")));
-        const eventsSnap = await getDocs(query(collection(db, "events"), orderBy("sortDate", "asc")));
+        const articlesSnap = await getDocs(collection(db, "articles"));
+        const eventsSnap = await getDocs(collection(db, "events"));
         const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
 
         const firebaseArticles = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
           .filter(a => a.published !== false)
-          .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now());
+          .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now())
+          .sort((a,b) => articleTime(b) - articleTime(a));
+
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
 
         const firebaseEvents = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
-          .filter(e => !e.sortDate || Number(e.sortDate) >= Number(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime()));
+          .filter(e => !e.sortDate || Number(e.sortDate) >= Number(todayStart))
+          .sort((a,b) => Number(a.sortDate || 0) - Number(b.sortDate || 0));
 
-        if(firebaseArticles.length){
-          window.ARTICLES = firebaseArticles;
-        }
-
-        if(firebaseEvents.length){
-          window.ORBITA_EVENTS = firebaseEvents;
-        }
+        window.ORBITA_ARTICLES = firebaseArticles;
+        window.ORBITA_EVENTS = firebaseEvents;
 
         if(heroSnap.exists()){
           window.ORBITA_HERO = heroSnap.data();
         }
+
+        window.ORBITA_FIREBASE_READY = true;
+        console.info("Órbita Firebase loaded", {
+          articles: firebaseArticles.length,
+          events: firebaseEvents.length,
+          hero: !!window.ORBITA_HERO
+        });
       }catch(err){
-        console.warn("Firebase content fallback to local data.js", err);
+        window.ORBITA_FIREBASE_READY = false;
+        console.error("Órbita Firebase failed. Falling back to data.js.", err);
       }
     };
   </script>

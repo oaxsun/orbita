@@ -207,3 +207,11 @@ v27:
 - Corrección pública completa: script.js ahora sí espera cargar Firestore antes de renderizar.
 - Home, News, Article y Events usan ORBITA_ARTICLES/ORBITA_EVENTS/ORBITA_HERO si existen.
 - El fallback data.js solo se usa si Firestore falla o no tiene datos.
+
+
+v28:
+- Corrección final del sitio público para Firestore.
+- El sitio ya no muestra data.js si Firebase carga correctamente.
+- Se removió ADMIN del menú público.
+- Carga pública sin orderBy para evitar fallos por campos faltantes.
+- Console log: "Órbita Firebase loaded" muestra cuántos artículos/eventos cargó.
