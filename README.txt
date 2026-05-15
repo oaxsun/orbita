@@ -65,3 +65,12 @@ v7:
 - Arreglados controles del carrusel para no salirse del contenedor.
 - En artículo: Relacionados cambió a Lo más leído.
 - Kicker NOTICIA ahora tiene color visible en modo claro.
+
+
+v9:
+- Hero completo centrado a 4/6 del ancho en desktop.
+- Dentro del hero: destacadas ocupa 3/6 y eventos 1/6.
+- New Topics, En Rotación y Newsletter también ocupan 4/6 del ancho.
+
+
+v10: Ajustes de destacadas, New Topics y página de eventos.
