@@ -1,3 +1,15 @@
+function getArticles(){
+  return window.ORBITA_ARTICLES?.length ? window.ORBITA_ARTICLES : ARTICLES;
+}
+
+function getEvents(){
+  return window.ORBITA_EVENTS || [];
+}
+
+function getHeroConfig(){
+  return window.ORBITA_HERO || null;
+}
+
 const TAGS = [
   { label:"#MÚSICA", emoji:"😎" },
   { label:"#FESTIVALES", emoji:"🔥" },
@@ -75,12 +87,12 @@ function renderArticles(){
   if(!grid || typeof ARTICLES === "undefined") return;
 
   const current = getCurrentFilter();
-  let filtered = current ? ARTICLES.filter(a => a.tags.includes(current)) : ARTICLES;
+  let filtered = current ? getArticles().filter(a => a.tags.includes(current)) : ARTICLES;
   const isNewsPage = window.location.pathname.includes("news.html");
   if(!isNewsPage){
-    if(window.ORBITA_HERO?.topics?.length){
-      const topicIds = window.ORBITA_HERO.topics;
-      filtered = topicIds.map(id => ARTICLES.find(a => a.id === id)).filter(Boolean);
+    if(getHeroConfig()?.topics?.length){
+      const topicIds = getHeroConfig().topics;
+      filtered = topicIds.map(id => getArticles().find(a => a.id === id)).filter(Boolean);
     }else{
       filtered = filtered.slice(0, 5);
     }
@@ -107,11 +119,11 @@ function renderArticlePage(){
   const shell = document.getElementById("articleShell");
   if(!shell || typeof ARTICLES === "undefined") return;
 
-  const id = new URLSearchParams(window.location.search).get("id") || ARTICLES[0].id;
-  const article = ARTICLES.find(a => a.id === id) || ARTICLES[0];
+  const id = new URLSearchParams(window.location.search).get("id") || getArticles()[0].id;
+  const article = getArticles().find(a => a.id === id) || getArticles()[0];
   document.title = `${article.title} — Órbita`;
 
-  const related = ARTICLES.filter(a => a.id !== article.id).slice(0,2);
+  const related = getArticles().filter(a => a.id !== article.id).slice(0,2);
 
   shell.innerHTML = `
     <div class="article-main">

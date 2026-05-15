@@ -195,3 +195,9 @@ v25:
 - Admin conectado a Firestore.
 - Sitio público lee contenido desde Firestore.
 - Incluye firestore.rules y FIREBASE_SETUP.txt.
+
+
+v26:
+- Corrección crítica: el sitio público ahora usa ORBITA_ARTICLES desde Firestore en lugar del const ARTICLES de data.js.
+- Antes Firebase sí podía cargar artículos, pero la web seguía leyendo el fallback local.
+- Agregado console.info para verificar cuántos artículos se cargan desde Firebase.
