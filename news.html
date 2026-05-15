@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Todas las noticias — Órbita</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">
+      <div class="planet">◎</div>
+      <div>
+        <h1>ÓRBITA</h1>
+        <p>MÚSICA · CULTURA · ESCENAS EN MOVIMIENTO</p>
+      </div>
+    </a>
+
+    <div class="actions">
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema">◐</button>
+      <button class="menu-btn" onclick="toggleMenu()">MENU</button>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-header">
+      <div>
+        <p>MENU</p>
+        <h2>ÓRBITA</h2>
+      </div>
+      <button onclick="toggleMenu()">✕</button>
+    </div>
+    <div class="overlay-links">
+      <a href="index.html">HOME →</a>
+      <a href="news.html">NOTICIAS →</a>
+      <a href="index.html#tags">TAGS →</a>
+    </div>
+  </div>
+
+  <div class="hashtag-bar" id="tags">
+    <div class="hashtag-track" id="hashtagTrack"></div>
+  </div>
+
+  <main class="news-page">
+    <a href="index.html" class="back-link">← VOLVER</a>
+    <div class="section-title">
+      <p>ARCHIVO</p>
+      <h2>TODAS LAS NEWS</h2>
+    </div>
+
+    <div id="articleGrid" class="article-grid news-card-list all-news"></div>
+    <p class="empty-state" id="emptyState">No hay artículos con ese hashtag todavía.</p>
+  </main>
+
+  <footer>
+    <p>↓↓↓ CREAR RUIDO Y DISFRUTARLO ✌ ↓↓↓</p>
+    <h2>ÓRBITA</h2>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

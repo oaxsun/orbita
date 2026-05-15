@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Órbita — Music / Culture / Chaos</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="logo">
+      <div class="planet">◎</div>
+      <div>
+        <h1>ÓRBITA</h1>
+        <p>MÚSICA · CULTURA · ESCENAS EN MOVIMIENTO</p>
+      </div>
+    </div>
+
+    <nav>
+      <button data-nav="all">POST</button>
+      <button data-nav="ranking">RANKING</button>
+      <button data-nav="category">CATEGORY</button>
+      <button data-nav="tag">TAG</button>
+    </nav>
+
+    <div class="actions">
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema">◐</button>
+      <button class="menu-btn" onclick="toggleMenu()">MENU</button>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-header">
+      <div>
+        <p>MENU</p>
+        <h2>ÓRBITA</h2>
+      </div>
+      <button onclick="toggleMenu()">✕</button>
+    </div>
+
+    <div class="overlay-links">
+      <a href="index.html">POST →</a>
+      <a href="#ranking">RANKING →</a>
+      <a href="#categories">CATEGORY →</a>
+      <a href="#tags">TAG →</a>
+      <a href="#">ABOUT →</a>
+      <a href="#">SOCIAL →</a>
+    </div>
+  </div>
+
+  <div class="hashtag-bar" id="tags">
+    <div class="hashtag-track" id="hashtagTrack"></div>
+  </div>
+
+  <main>
+
+    <section class="featured-layout">
+      <section class="featured-carousel" id="featuredCarousel">
+        <div class="featured-track" id="featuredTrack">
+          <a class="featured-slide active" href="article.html?id=anime-song" style="--bgimg:url('https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=1600&q=80')">
+            <span class="pickup">PICKUP 🚀</span>
+            <p class="tiny">01 · NOTA DEL DÍA</p>
+            <h2>FKA TWIGS LANZA “EUSEXUA” Y ANUNCIA GIRA MUNDIAL</h2>
+            <p class="desc">El nuevo álbum es una exploración íntima y electrónica de club, cuerpo y transformación.</p>
+            <span class="read-btn">LEER ARTÍCULO →</span>
+          </a>
+
+          <a class="featured-slide" href="article.html?id=primavera-sound-2025" style="--bgimg:url('https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1600&q=80')">
+            <span class="pickup">PICKUP 🔥</span>
+            <p class="tiny">02 · FESTIVALES</p>
+            <h2>PRIMAVERA SOUND 2025: EL LINEUP COMPLETO</h2>
+            <p class="desc">El festival apuesta por una mezcla de pop alternativo, electrónica de club y nombres de culto.</p>
+            <span class="read-btn">LEER ARTÍCULO →</span>
+          </a>
+
+          <a class="featured-slide" href="article.html?id=arca-persistence" style="--bgimg:url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=80')">
+            <span class="pickup">PICKUP 💿</span>
+            <p class="tiny">03 · LANZAMIENTO</p>
+            <h2>ARCA ESTRENA NUEVO SENCILLO: “PERSISTENCE”</h2>
+            <p class="desc">Una pieza entre glitch emocional, textura industrial y belleza sintética.</p>
+            <span class="read-btn">LEER ARTÍCULO →</span>
+          </a>
+        </div>
+
+        <div class="carousel-controls">
+          <button type="button" id="prevFeatured">←</button>
+          <div class="carousel-dots" id="featuredDots"></div>
+          <button type="button" id="nextFeatured">→</button>
+        </div>
+      </section>
+
+      <aside class="events-panel">
+        <div class="agenda-title">
+          <span>EVENTOS</span>
+          <h3>PRÓXIMOS EVENTOS</h3>
+        </div>
+
+        <div class="events-list">
+          <div class="event-row"><strong>17<span>MAY</span></strong><p>Primavera Sound 2025<br><small>Barcelona, ES</small></p></div>
+          <div class="event-row"><strong>24<span>MAY</span></strong><p>Charli XCX<br><small>Pepsi Center CDMX</small></p></div>
+          <div class="event-row"><strong>30<span>MAY</span></strong><p>Cazriel & Paco Amoroso<br><small>Foro Indie Rocks</small></p></div>
+          <div class="event-row"><strong>07<span>JUN</span></strong><p>Tyler, The Creator<br><small>Palacio de los Deportes</small></p></div>
+        </div>
+
+        <a class="events-more" href="events.html">VER MÁS EVENTOS →</a>
+      </aside>
+    </section>
+
+    <section class="topics news-list-section">
+      <div class="section-title">
+        <p>（NUEVO & UPDATE）</p>
+        <h2>NEW TOPICS</h2>
+      </div>
+
+      <div id="articleGrid" class="article-grid news-card-list"></div>
+      <p class="empty-state" id="emptyState">No hay artículos con ese hashtag todavía.</p>
+
+      <div class="more-news-wrap">
+        <a class="more-news-btn" href="news.html">VER MÁS NOTICIAS →</a>
+      </div>
+    </section>
+
+    <section class="rotation">
+      <div class="section-title">
+        <p>NUEVO · HOT · RECIENTE</p>
+        <h2>EN ROTACIÓN</h2>
+      </div>
+
+      <div class="rotation-grid">
+        <a href="article.html?id=arca-persistence" class="rotation-card">
+          <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=800&q=80" alt="Arca estrena nuevo sencillo">
+          <span>LANZAMIENTO</span>
+          <h3>Arca estrena nuevo sencillo “Persistence”</h3>
+          <p>14 MAYO 2025</p>
+        </a>
+
+        <a href="article.html?id=primavera-sound-2025" class="rotation-card">
+          <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80" alt="Primavera Sound 2025">
+          <span>FESTIVALES</span>
+          <h3>Primavera Sound 2025: el lineup completo</h3>
+          <p>16 MAYO 2025</p>
+        </a>
+
+        <a href="article.html?id=anime-song" class="rotation-card">
+          <img src="https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=800&q=80" alt="FKA twigs">
+          <span>NOTICIAS</span>
+          <h3>FKA twigs lanza “Eusexua” y anuncia gira mundial</h3>
+          <p>18 MAYO 2025</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="newsletter-block">
+      <div>
+        <p>NEWSLETTER</p>
+        <h2>RECIBE EL RUIDO IMPORTANTE</h2>
+        <span>Una selección semanal de lanzamientos, conciertos, escenas y hallazgos raros.</span>
+      </div>
+      <form>
+        <input type="email" placeholder="tu@email.com">
+        <button type="button">UNIRME →</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>↓↓↓ CREAR RUIDO Y DISFRUTARLO ✌ ↓↓↓</p>
+    <h2>ÓRBITA</h2>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
