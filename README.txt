@@ -81,3 +81,26 @@ v11:
 - Mobile: botón Leer Artículo separado del preview text.
 - Mobile: panel de eventos más limpio.
 - Desktop: imagen de New Topics con difuminado más estético.
+
+
+v12:
+- En Rotación ahora es curaduría musical / Now Playing, no otra lista de noticias.
+- Mobile: controles del carrusel forzados dentro del contenedor.
+- Mobile: destacadas y eventos tienen el mismo ancho.
+- Mobile: New Topics compacto, horizontal y sin imagen.
+
+
+v13:
+- En Rotación ahora tiene 5 selecciones.
+- Al hacer clic en una selección se actualiza el visor izquierdo.
+- El botón ahora dice LEER y abre una reseña/artículo del álbum o selección.
+- Se agregaron artículos de reseña en data.js.
+
+
+v14:
+- En Rotación ahora muestra portada visual del álbum/reseña.
+- El botón LEER se posicionó en la esquina inferior derecha del viewer.
+
+
+v15:
+- Eliminado el icono/símbolo encima de la portada del álbum en En Rotación.

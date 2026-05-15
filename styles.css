@@ -2203,3 +2203,410 @@ footer h2{
     font-size:12px;
   }
 }
+
+
+/* v12: En Rotación becomes music curation */
+.now-playing-grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:22px;
+}
+
+.now-main{
+  border:4px solid var(--text);
+  border-radius:30px;
+  background:var(--panel);
+  color:var(--panelText);
+  box-shadow:8px 8px 0 var(--shadow);
+  padding:24px;
+  display:grid;
+  grid-template-columns:180px 1fr;
+  gap:24px;
+  align-items:center;
+}
+
+.cover-art{
+  aspect-ratio:1;
+  border:4px solid #000;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 35% 35%, var(--accent), transparent 30%),
+    radial-gradient(circle at 70% 60%, var(--acid), transparent 28%),
+    linear-gradient(135deg, #111, #333);
+  display:grid;
+  place-items:center;
+  font-size:76px;
+  color:#fff;
+  box-shadow:6px 6px 0 #000;
+}
+
+.now-main span{
+  display:inline-block;
+  background:var(--yellow);
+  color:#000;
+  border:2px solid #000;
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:14px;
+}
+
+.now-main h3{
+  font-family:'Archivo Black',sans-serif;
+  font-size:54px;
+  line-height:.9;
+}
+
+.now-main p{
+  margin-top:8px;
+  font-size:20px;
+  font-weight:900;
+}
+
+.now-main small{
+  display:block;
+  margin-top:12px;
+  max-width:420px;
+  color:color-mix(in srgb, var(--panelText) 75%, transparent);
+  font-size:14px;
+  line-height:1.4;
+}
+
+.now-main button{
+  margin-top:18px;
+  border:3px solid #000;
+  border-radius:999px;
+  background:var(--accent);
+  color:#000;
+  padding:12px 18px;
+  font-weight:900;
+  box-shadow:4px 4px 0 #000;
+}
+
+.track-list{
+  display:grid;
+  gap:14px;
+}
+
+.track-list article{
+  border:4px solid var(--text);
+  border-radius:24px;
+  background:var(--card);
+  color:var(--text);
+  box-shadow:6px 6px 0 var(--shadow);
+  padding:18px;
+  display:grid;
+  grid-template-columns:54px 1fr;
+  gap:16px;
+  align-items:center;
+}
+
+.track-list strong{
+  font-size:34px;
+  line-height:1;
+  font-weight:400;
+}
+
+.track-list h4{
+  font-family:'Archivo Black',sans-serif;
+  font-size:22px;
+  line-height:1;
+}
+
+.track-list p{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:6px;
+  font-weight:900;
+}
+
+/* v12 mobile fixes */
+@media(max-width:980px){
+  .featured-layout{
+    margin:14px;
+    gap:14px;
+  }
+
+  .featured-layout .featured-carousel,
+  .featured-layout .featured-track,
+  .events-panel{
+    width:100%;
+    max-width:100%;
+  }
+
+  .featured-layout .featured-carousel,
+  .featured-layout .featured-track{
+    min-height:520px;
+    margin:0;
+  }
+
+  .featured-layout .featured-slide{
+    min-height:520px;
+    padding:20px 20px 112px;
+  }
+
+  .featured-slide .read-btn{
+    bottom:62px;
+    left:20px;
+    max-width:calc(100% - 40px);
+  }
+
+  .carousel-controls{
+    left:20px !important;
+    right:20px !important;
+    bottom:16px !important;
+    width:calc(100% - 40px) !important;
+    max-width:calc(100% - 40px) !important;
+    display:grid;
+    grid-template-columns:30px 1fr 30px;
+    align-items:center;
+  }
+
+  .carousel-controls button{
+    width:28px;
+    height:28px;
+    min-width:28px;
+    padding:0;
+  }
+
+  .carousel-dots{
+    justify-content:center;
+    min-width:0;
+  }
+
+  /* New Topics mobile: horizontal compact, no image */
+  .news-style-card{
+    min-height:auto !important;
+    padding:16px !important;
+    display:grid;
+    grid-template-columns:48px 1fr;
+    align-items:start;
+    background:var(--card) !important;
+    border-radius:20px;
+  }
+
+  .news-style-card .number{
+    font-size:32px;
+    line-height:1;
+  }
+
+  .news-style-card .content h3{
+    font-size:19px !important;
+    line-height:1.05;
+  }
+
+  .news-style-card .content p{
+    display:none;
+  }
+
+  .news-style-card small{
+    font-size:10px;
+    margin-top:10px;
+  }
+
+  .news-style-card button{
+    grid-column:1 / -1;
+    margin-top:10px;
+  }
+
+  .news-style-card::after{
+    display:none;
+  }
+
+  .now-playing-grid{
+    grid-template-columns:1fr;
+  }
+
+  .now-main{
+    grid-template-columns:92px 1fr;
+    gap:16px;
+    padding:18px;
+    border-radius:24px;
+  }
+
+  .cover-art{
+    border-radius:18px;
+    font-size:38px;
+  }
+
+  .now-main h3{
+    font-size:32px;
+  }
+
+  .now-main p{
+    font-size:15px;
+  }
+
+  .now-main small{
+    display:none;
+  }
+
+  .now-main button{
+    padding:10px 14px;
+    font-size:12px;
+  }
+
+  .track-list article{
+    grid-template-columns:42px 1fr;
+    padding:14px;
+    border-radius:18px;
+  }
+
+  .track-list strong{
+    font-size:26px;
+  }
+
+  .track-list h4{
+    font-size:18px;
+  }
+}
+
+
+/* v13: interactive En Rotación */
+.rotation-read-btn{
+  display:inline-block;
+  margin-top:18px;
+  border:3px solid #000;
+  border-radius:999px;
+  background:var(--accent);
+  color:#000;
+  text-decoration:none;
+  padding:12px 18px;
+  font-weight:900;
+  box-shadow:4px 4px 0 #000;
+}
+
+.now-main button{
+  display:none;
+}
+
+.rotation-selector{
+  gap:10px;
+}
+
+.rotation-selector button{
+  width:100%;
+  text-align:left;
+  border:4px solid var(--text);
+  border-radius:22px;
+  background:var(--card);
+  color:var(--text);
+  box-shadow:5px 5px 0 var(--shadow);
+  padding:14px;
+  display:grid;
+  grid-template-columns:46px 1fr;
+  gap:14px;
+  align-items:center;
+  transition:.2s;
+}
+
+.rotation-selector button:hover,
+.rotation-selector button.active{
+  background:var(--yellow);
+  color:#000;
+  transform:translateY(-3px);
+}
+
+.rotation-selector button.active{
+  box-shadow:5px 5px 0 var(--accent);
+}
+
+.rotation-selector button strong{
+  font-size:28px;
+  line-height:1;
+  font-weight:400;
+}
+
+.rotation-selector button h4{
+  font-family:'Archivo Black',sans-serif;
+  font-size:20px;
+  line-height:1;
+}
+
+.rotation-selector button p{
+  font-size:12px;
+  margin-top:5px;
+  font-weight:900;
+  color:inherit;
+  opacity:.75;
+}
+
+@media(max-width:980px){
+  .rotation-selector button{
+    grid-template-columns:38px 1fr;
+    padding:12px;
+    border-radius:18px;
+  }
+
+  .rotation-selector button strong{
+    font-size:24px;
+  }
+
+  .rotation-selector button h4{
+    font-size:17px;
+  }
+
+  .rotation-read-btn{
+    padding:10px 14px;
+    font-size:12px;
+  }
+}
+
+
+/* v14: rotation viewer cover art + button positioning */
+.now-main{
+  position:relative;
+  padding-bottom:88px;
+}
+
+.cover-art{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(135deg, rgba(0,0,0,.25), rgba(0,0,0,.55)),
+    var(--cover) center/cover no-repeat;
+}
+
+.cover-art::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.15), transparent 30%),
+    linear-gradient(180deg, transparent 0%, rgba(0,0,0,.25) 100%);
+}
+
+.cover-art{
+  color:#fff;
+  text-shadow:3px 3px 0 rgba(0,0,0,.55);
+}
+
+.rotation-read-btn{
+  position:absolute;
+  right:24px;
+  bottom:24px;
+  margin-top:0;
+}
+
+@media(max-width:980px){
+  .now-main{
+    padding-bottom:78px;
+  }
+
+  .rotation-read-btn{
+    right:18px;
+    bottom:18px;
+  }
+}
+
+
+/* v15: clean album preview */
+.cover-art{
+  font-size:0 !important;
+  text-shadow:none !important;
+}
+
+.cover-art::before{
+  display:none;
+}

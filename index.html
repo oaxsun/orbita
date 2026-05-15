@@ -124,33 +124,31 @@
       </div>
     </section>
 
-    <section class="rotation">
+    <section class="rotation now-playing-section">
       <div class="section-title">
-        <p>NUEVO · HOT · RECIENTE</p>
+        <p>CURADURÍA · PICKS · PLAYLIST</p>
         <h2>EN ROTACIÓN</h2>
       </div>
 
-      <div class="rotation-grid">
-        <a href="article.html?id=arca-persistence" class="rotation-card">
-          <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=800&q=80" alt="Arca estrena nuevo sencillo">
-          <span>LANZAMIENTO</span>
-          <h3>Arca estrena nuevo sencillo “Persistence”</h3>
-          <p>14 MAYO 2025</p>
-        </a>
+      <div class="now-playing-grid">
+        <article class="now-main" id="rotationViewer">
+          <div class="cover-art" id="rotationCover" style="--cover:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80')"></div>
+          <div>
+            <span id="rotationLabel">EDITOR'S PICK</span>
+            <h3 id="rotationTitle">Eusexua</h3>
+            <p id="rotationArtist">FKA twigs</p>
+            <small id="rotationDesc">Un disco para escuchar entre club oscuro, pop experimental y movimiento corporal.</small>
+            <a id="rotationRead" class="rotation-read-btn" href="article.html?id=review-eusexua">LEER →</a>
+          </div>
+        </article>
 
-        <a href="article.html?id=primavera-sound-2025" class="rotation-card">
-          <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80" alt="Primavera Sound 2025">
-          <span>FESTIVALES</span>
-          <h3>Primavera Sound 2025: el lineup completo</h3>
-          <p>16 MAYO 2025</p>
-        </a>
-
-        <a href="article.html?id=anime-song" class="rotation-card">
-          <img src="https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=800&q=80" alt="FKA twigs">
-          <span>NOTICIAS</span>
-          <h3>FKA twigs lanza “Eusexua” y anuncia gira mundial</h3>
-          <p>18 MAYO 2025</p>
-        </a>
+        <div class="track-list rotation-selector" id="rotationSelector">
+          <button type="button" class="active" data-title="Eusexua" data-artist="FKA twigs" data-desc="Un disco para escuchar entre club oscuro, pop experimental y movimiento corporal." data-label="EDITOR'S PICK" data-symbol="◎" data-link="article.html?id=review-eusexua" data-cover="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80"><strong>01</strong><div><h4>Eusexua</h4><p>FKA twigs · R&B / Club</p></div></button>
+          <button type="button" data-title="Persistence" data-artist="Arca" data-desc="Ruido emocional, belleza sintética y texturas que parecen romperse en tiempo real." data-label="EXPERIMENTAL" data-symbol="◈" data-link="article.html?id=review-persistence" data-cover="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80"><strong>02</strong><div><h4>Persistence</h4><p>Arca · Experimental</p></div></button>
+          <button type="button" data-title="Brat" data-artist="Charli XCX" data-desc="Pop de club, estética verde radioactiva y una actitud que domina la conversación cultural." data-label="POP CULTURE" data-symbol="✦" data-link="article.html?id=review-brat" data-cover="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80"><strong>03</strong><div><h4>Brat</h4><p>Charli XCX · Pop</p></div></button>
+          <button type="button" data-title="Dreams" data-artist="Yukimi" data-desc="R&B cálido, nocturno y suave para escuchar cuando quieres bajar la velocidad." data-label="SOFT PICK" data-symbol="◌" data-link="article.html?id=review-yukimi" data-cover="https://images.unsplash.com/photo-1487180144351-b8472da7d491?auto=format&fit=crop&w=800&q=80"><strong>04</strong><div><h4>Dreams</h4><p>Yukimi · R&B</p></div></button>
+          <button type="button" data-title="Club Sentimental" data-artist="Playlist Órbita" data-desc="Una selección editorial para bailar con nostalgia, sintetizadores y corazón roto." data-label="PLAYLIST" data-symbol="✺" data-link="article.html?id=review-club-sentimental" data-cover="https://images.unsplash.com/photo-1571266028243-d220c9c3b429?auto=format&fit=crop&w=800&q=80"><strong>05</strong><div><h4>Club Sentimental</h4><p>Órbita · Electrónica</p></div></button>
+        </div>
       </div>
     </section>
 

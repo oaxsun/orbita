@@ -157,6 +157,34 @@ function renderArticlePage(){
 }
 
 
+
+function setupRotationSelector(){
+  const selector = document.getElementById("rotationSelector");
+  if(!selector) return;
+
+  const title = document.getElementById("rotationTitle");
+  const artist = document.getElementById("rotationArtist");
+  const desc = document.getElementById("rotationDesc");
+  const label = document.getElementById("rotationLabel");
+  const cover = document.getElementById("rotationCover");
+  const read = document.getElementById("rotationRead");
+
+  selector.querySelectorAll("button").forEach(button => {
+    button.addEventListener("click", () => {
+      selector.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+
+      title.textContent = button.dataset.title;
+      artist.textContent = button.dataset.artist;
+      desc.textContent = button.dataset.desc;
+      label.textContent = button.dataset.label;
+      cover.style.setProperty("--cover", `url('${button.dataset.cover}')`);
+      read.href = button.dataset.link;
+    });
+  });
+}
+
+
 function setupFeaturedCarousel(){
   const carousel = document.getElementById("featuredCarousel");
   const slides = [...document.querySelectorAll(".featured-slide")];
@@ -210,3 +238,4 @@ renderHashtags();
 renderArticles();
 renderArticlePage();
 setupFeaturedCarousel();
+setupRotationSelector();
