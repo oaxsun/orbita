@@ -230,3 +230,11 @@ v30:
 - Eliminado todo contenido hardcodeado de Eventos en home.
 - data.js vacío.
 - Todo el contenido real debe agregarse desde el administrador/Firestore.
+
+
+v31:
+- script.js público reescrito de forma estable.
+- Carga Firestore primero, luego renderiza.
+- Sin fallback a data.js.
+- Destacadas, New Topics, En Rotación y Eventos solo muestran Firestore/admin.
+- Agregado log: "Órbita render data".

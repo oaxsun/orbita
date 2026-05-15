@@ -1,9 +1,9 @@
 function getArticles(){
-  return window.ORBITA_ARTICLES || [];
+  return Array.isArray(window.ORBITA_ARTICLES) ? window.ORBITA_ARTICLES : [];
 }
 
 function getEvents(){
-  return window.ORBITA_EVENTS || [];
+  return Array.isArray(window.ORBITA_EVENTS) ? window.ORBITA_EVENTS : [];
 }
 
 function getHeroConfig(){
@@ -26,7 +26,7 @@ const TAGS = [
 ];
 
 function toggleMenu(){
-  document.getElementById('overlay').classList.toggle('active');
+  document.getElementById('overlay')?.classList.toggle('active');
 }
 
 function setupTheme(){
@@ -46,19 +46,6 @@ function setupTheme(){
       btn.textContent = isDark ? "☀" : "☾";
     });
   }
-}
-
-function setupCursor(){
-  const dot = document.getElementById("cursorDot");
-  const hand = document.getElementById("cursorHand");
-  if(!dot || !hand) return;
-
-  window.addEventListener("mousemove", (e) => {
-    dot.style.left = e.clientX + "px";
-    dot.style.top = e.clientY + "px";
-    hand.style.left = e.clientX + "px";
-    hand.style.top = e.clientY + "px";
-  });
 }
 
 function getCurrentFilter(){
@@ -82,30 +69,37 @@ function renderHashtags(){
   }).join("");
 }
 
+function escapeAttr(value){
+  return String(value || "").replace(/"/g, "&quot;");
+}
+
 function renderArticles(){
   const grid = document.getElementById("articleGrid");
-  if(!grid || typeof ARTICLES === "undefined") return;
+  if(!grid) return;
 
+  const articles = getArticles();
   const current = getCurrentFilter();
-  let filtered = current ? getArticles().filter(a => a.tags.includes(current)) : ARTICLES;
   const isNewsPage = window.location.pathname.includes("news.html");
+
+  let filtered = current ? articles.filter(a => Array.isArray(a.tags) && a.tags.includes(current)) : articles;
+
   if(!isNewsPage){
-    if(getHeroConfig()?.topics?.length){
-      const topicIds = getHeroConfig().topics;
-      filtered = topicIds.map(id => getArticles().find(a => a.id === id)).filter(Boolean);
+    const topics = getHeroConfig()?.topics || [];
+    if(topics.length){
+      filtered = topics.map(id => articles.find(a => a.id === id)).filter(Boolean);
     }else{
-      filtered = filtered.slice(0, 5);
+      filtered = filtered.slice(0, 10);
     }
   }
 
   grid.innerHTML = filtered.map((article, index) => `
-    <a class="topic-card article-link news-style-card ${isNewsPage ? "archive-card" : ""}" href="article.html?id=${article.id}" style="--cardimg:url('${article.image}')">
+    <a class="topic-card article-link news-style-card ${isNewsPage ? "archive-card" : ""}" href="article.html?id=${article.id}" style="--cardimg:url('${article.image || ""}')">
       ${isNewsPage ? "" : `<div class="number">${String(index + 1).padStart(2,"0")}</div>`}
       <div class="content">
-        <span class="tag-mini">${article.category}</span>
-        <h3>${article.title}</h3>
-        <p>${article.excerpt}</p>
-        <small>${article.date}</small>
+        <span class="tag-mini">${article.category || "NOTICIA"}</span>
+        <h3>${article.title || "Sin título"}</h3>
+        <p>${article.excerpt || ""}</p>
+        <small>${article.date || ""}</small>
       </div>
       <button>LEER →</button>
     </a>
@@ -117,30 +111,37 @@ function renderArticles(){
 
 function renderArticlePage(){
   const shell = document.getElementById("articleShell");
-  if(!shell || typeof ARTICLES === "undefined") return;
+  if(!shell) return;
 
-  const id = new URLSearchParams(window.location.search).get("id") || getArticles()[0].id;
-  const article = getArticles().find(a => a.id === id) || getArticles()[0];
+  const articles = getArticles();
+  const id = new URLSearchParams(window.location.search).get("id");
+  const article = articles.find(a => a.id === id) || articles[0];
+
+  if(!article){
+    shell.innerHTML = `<div class="article-main"><h1>Artículo no encontrado</h1><p class="desc">No hay artículos publicados disponibles todavía.</p></div>`;
+    return;
+  }
+
   document.title = `${article.title} — Órbita`;
 
-  const related = getArticles().filter(a => a.id !== article.id).slice(0,2);
+  const related = articles.filter(a => a.id !== article.id).slice(0,2);
 
   shell.innerHTML = `
     <div class="article-main">
-      <span class="article-kicker">${article.category}</span>
-      <h1>${article.title}</h1>
-      <p class="desc">${article.excerpt}</p>
+      <span class="article-kicker">${article.category || "NOTICIA"}</span>
+      <h1>${article.title || ""}</h1>
+      <p class="desc">${article.excerpt || ""}</p>
       <div class="article-meta">
-        <span>☻ POR ${article.author}</span>
-        <span>${article.date}</span>
-        <span>${article.read}</span>
+        <span>☻ POR ${article.author || "ÓRBITA"}</span>
+        <span>${article.date || ""}</span>
+        <span>${article.read || "3 MIN DE LECTURA"}</span>
       </div>
 
-      <img class="article-image" src="${article.image}" alt="${article.title}">
+      <img class="article-image" src="${article.image || ""}" alt="${article.title || ""}">
 
       <div class="article-body">
-        ${article.body.map(p => `<p>${p}</p>`).join("")}
-        <blockquote class="article-quote">“${article.quote}”</blockquote>
+        ${(article.body || []).map(p => `<p>${p}</p>`).join("")}
+        ${article.quote ? `<blockquote class="article-quote">“${article.quote}”</blockquote>` : ""}
       </div>
     </div>
 
@@ -154,17 +155,17 @@ function renderArticlePage(){
 
       <h3>TAGS</h3>
       <div class="sidebar-tags">
-        ${article.tags.map(t => `<a href="index.html?tag=${encodeURIComponent(t)}#tags">${t}</a>`).join("")}
+        ${(article.tags || []).map(t => `<a href="news.html?tag=${encodeURIComponent(t)}#tags">${t}</a>`).join("")}
       </div>
 
       <h3>LO MÁS LEÍDO</h3>
       <div class="related">
         ${related.map(r => `
           <a href="article.html?id=${r.id}">
-            <img src="${r.image}" alt="${r.title}">
+            <img src="${r.image || ""}" alt="${r.title || ""}">
             <div>
-              <h4>${r.title}</h4>
-              <p>${r.date}</p>
+              <h4>${r.title || ""}</h4>
+              <p>${r.date || ""}</p>
             </div>
           </a>
         `).join("")}
@@ -173,8 +174,95 @@ function renderArticlePage(){
   `;
 }
 
+function renderFeatured(){
+  const track = document.getElementById("featuredTrack");
+  if(!track) return;
 
+  const articles = getArticles();
+  const hero = getHeroConfig();
+  const featuredIds = hero?.featured || [];
+  const selected = featuredIds.map(id => articles.find(a => a.id === id)).filter(Boolean);
 
+  if(!selected.length){
+    track.innerHTML = `
+      <div class="featured-slide active empty-featured">
+        <span class="pickup">ÓRBITA</span>
+        <p class="tiny">SIN DESTACADAS</p>
+        <h2>AGREGA ARTÍCULOS DESDE EL ADMINISTRADOR</h2>
+        <p class="desc">Cuando selecciones destacadas en el CMS, aparecerán aquí automáticamente.</p>
+      </div>
+    `;
+    return;
+  }
+
+  track.innerHTML = selected.map((article, index) => `
+    <a class="featured-slide ${index === 0 ? "active" : ""}" href="article.html?id=${article.id}" style="--bgimg:url('${article.image || ""}')">
+      <span class="pickup">PICKUP 🚀</span>
+      <p class="tiny">${String(index + 1).padStart(2,"0")} · ${article.category || "NOTICIA"}</p>
+      <h2>${article.title || ""}</h2>
+      <p class="desc">${article.excerpt || ""}</p>
+      <span class="read-btn">LEER ARTÍCULO →</span>
+    </a>
+  `).join("");
+}
+
+function renderRotation(){
+  const selector = document.getElementById("rotationSelector");
+  const title = document.getElementById("rotationTitle");
+  const artist = document.getElementById("rotationArtist");
+  const desc = document.getElementById("rotationDesc");
+  const label = document.getElementById("rotationLabel");
+  const cover = document.getElementById("rotationCover");
+  const read = document.getElementById("rotationRead");
+
+  if(!selector) return;
+
+  const articles = getArticles();
+  const rotationIds = getHeroConfig()?.rotation || [];
+  const rotationArticles = rotationIds.map(id => articles.find(a => a.id === id)).filter(Boolean).slice(0,5);
+
+  selector.innerHTML = rotationArticles.map((a, i) => `
+    <button type="button" class="${i === 0 ? "active" : ""}" data-title="${escapeAttr(a.title)}" data-artist="${escapeAttr(a.author || 'ÓRBITA')}" data-desc="${escapeAttr(a.excerpt)}" data-label="${escapeAttr(a.category)}" data-link="article.html?id=${a.id}" data-cover="${escapeAttr(a.image)}">
+      <strong>${String(i + 1).padStart(2,"0")}</strong><div><h4>${a.title}</h4><p>${a.category}</p></div>
+    </button>
+  `).join("");
+
+  if(rotationArticles.length){
+    const first = rotationArticles[0];
+    if(title) title.textContent = first.title || "";
+    if(artist) artist.textContent = first.author || "ÓRBITA";
+    if(desc) desc.textContent = first.excerpt || "";
+    if(label) label.textContent = first.category || "RESEÑA";
+    if(cover) cover.style.setProperty("--cover", `url('${first.image || ""}')`);
+    if(read) read.href = `article.html?id=${first.id}`;
+  }
+}
+
+function setupRotationSelector(){
+  const selector = document.getElementById("rotationSelector");
+  if(!selector) return;
+
+  const title = document.getElementById("rotationTitle");
+  const artist = document.getElementById("rotationArtist");
+  const desc = document.getElementById("rotationDesc");
+  const label = document.getElementById("rotationLabel");
+  const cover = document.getElementById("rotationCover");
+  const read = document.getElementById("rotationRead");
+
+  selector.querySelectorAll("button").forEach(button => {
+    button.addEventListener("click", () => {
+      selector.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+
+      if(title) title.textContent = button.dataset.title;
+      if(artist) artist.textContent = button.dataset.artist;
+      if(desc) desc.textContent = button.dataset.desc;
+      if(label) label.textContent = button.dataset.label;
+      if(cover) cover.style.setProperty("--cover", `url('${button.dataset.cover}')`);
+      if(read) read.href = button.dataset.link;
+    });
+  });
+}
 
 function renderDynamicEvents(){
   const events = getEvents();
@@ -201,95 +289,6 @@ function renderDynamicEvents(){
       : `<p class="empty-state" style="display:block">No hay eventos publicados todavía.</p>`;
   }
 }
-
-function applyHeroConfig(){
-  const articles = getArticles();
-  const heroFeatured = getHeroConfig()?.featured?.length
-    ? getHeroConfig().featured
-    : [];
-
-  const selected = heroFeatured.map(id => articles.find(a => a.id === id)).filter(Boolean);
-
-  const track = document.getElementById("featuredTrack");
-  if(track){
-    if(!selected.length){
-      track.innerHTML = `
-        <div class="featured-slide active empty-featured">
-          <span class="pickup">ÓRBITA</span>
-          <p class="tiny">SIN DESTACADAS</p>
-          <h2>AGREGA ARTÍCULOS DESDE EL ADMINISTRADOR</h2>
-          <p class="desc">Cuando selecciones destacadas en el CMS, aparecerán aquí automáticamente.</p>
-        </div>
-      `;
-    }else{
-      track.innerHTML = selected.map((article, index) => `
-        <a class="featured-slide ${index === 0 ? "active" : ""}" href="article.html?id=${article.id}" style="--bgimg:url('${article.image}')">
-          <span class="pickup">PICKUP 🚀</span>
-          <p class="tiny">${String(index + 1).padStart(2,"0")} · ${article.category}</p>
-          <h2>${article.title}</h2>
-          <p class="desc">${article.excerpt}</p>
-          <span class="read-btn">LEER ARTÍCULO →</span>
-        </a>
-      `).join("");
-    }
-  }
-
-  const rotationIds = getHeroConfig()?.rotation || [];
-  const selector = document.getElementById("rotationSelector");
-  const rotationArticles = rotationIds.map(id => articles.find(a => a.id === id)).filter(Boolean).slice(0,5);
-
-  if(selector){
-    selector.innerHTML = rotationArticles.map((a, i) => `
-      <button type="button" class="${i === 0 ? "active" : ""}" data-title="${String(a.title).replace(/"/g, '&quot;')}" data-artist="${a.author || 'ÓRBITA'}" data-desc="${String(a.excerpt).replace(/"/g, '&quot;')}" data-label="${a.category}" data-symbol="" data-link="article.html?id=${a.id}" data-cover="${a.image}">
-        <strong>${String(i + 1).padStart(2,"0")}</strong><div><h4>${a.title}</h4><p>${a.category}</p></div>
-      </button>
-    `).join("");
-  }
-
-  if(rotationArticles.length){
-    const first = rotationArticles[0];
-    const title = document.getElementById("rotationTitle");
-    const artist = document.getElementById("rotationArtist");
-    const desc = document.getElementById("rotationDesc");
-    const label = document.getElementById("rotationLabel");
-    const cover = document.getElementById("rotationCover");
-    const read = document.getElementById("rotationRead");
-    if(title) title.textContent = first.title;
-    if(artist) artist.textContent = first.author || "ÓRBITA";
-    if(desc) desc.textContent = first.excerpt;
-    if(label) label.textContent = first.category;
-    if(cover) cover.style.setProperty("--cover", `url('${first.image}')`);
-    if(read) read.href = `article.html?id=${first.id}`;
-  }
-}
-
-
-function setupRotationSelector(){
-  const selector = document.getElementById("rotationSelector");
-  if(!selector) return;
-
-  const title = document.getElementById("rotationTitle");
-  const artist = document.getElementById("rotationArtist");
-  const desc = document.getElementById("rotationDesc");
-  const label = document.getElementById("rotationLabel");
-  const cover = document.getElementById("rotationCover");
-  const read = document.getElementById("rotationRead");
-
-  selector.querySelectorAll("button").forEach(button => {
-    button.addEventListener("click", () => {
-      selector.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      button.classList.add("active");
-
-      title.textContent = button.dataset.title;
-      artist.textContent = button.dataset.artist;
-      desc.textContent = button.dataset.desc;
-      label.textContent = button.dataset.label;
-      cover.style.setProperty("--cover", `url('${button.dataset.cover}')`);
-      read.href = button.dataset.link;
-    });
-  });
-}
-
 
 function setupFeaturedCarousel(){
   const carousel = document.getElementById("featuredCarousel");
@@ -338,18 +337,27 @@ function setupFeaturedCarousel(){
   restart();
 }
 
-
 async function initOrbitaSite(){
+  setupTheme();
+
   if(window.orbitaLoadFirebaseContent){
     await window.orbitaLoadFirebaseContent();
+  }else{
+    console.error("No existe window.orbitaLoadFirebaseContent. Revisa que el módulo Firebase esté cargando en el HTML.");
   }
 
-  setupTheme();
+  console.info("Órbita render data", {
+    articles:getArticles().length,
+    events:getEvents().length,
+    hero:getHeroConfig()
+  });
+
   renderHashtags();
-  applyHeroConfig();
+  renderFeatured();
   renderArticles();
   renderArticlePage();
   renderDynamicEvents();
+  renderRotation();
   setupFeaturedCarousel();
   setupRotationSelector();
 }
