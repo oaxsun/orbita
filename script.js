@@ -269,20 +269,56 @@ function renderFeatured(){
   `).join("");
 }
 
+
+function getDailySeed(){
+  const d = new Date();
+  return Number(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`);
+}
+
+function seededRandom(seed){
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function getDailyRandomReviewIds(){
+  const reviews = getArticles().filter(a => String(a.category || "").toUpperCase() === "RESEÑA");
+  const seed = getDailySeed();
+
+  return reviews
+    .map((article, index) => ({
+      article,
+      score: seededRandom(seed + index + article.id.length)
+    }))
+    .sort((a,b) => a.score - b.score)
+    .slice(0, 5)
+    .map(item => item.article.id);
+}
+
+function setRotationCover(url){
+  if(!cover) return;
+  cover.style.setProperty("--cover", `url("${url || ""}")`);
+  cover.style.backgroundImage = `linear-gradient(135deg, rgba(0,0,0,.06), rgba(0,0,0,.28)), url("${url || ""}")`;
+}
+
 function renderRotation(){
   const selector = document.getElementById("rotationSelector");
   const title = document.getElementById("rotationTitle");
   const artist = document.getElementById("rotationArtist");
   const desc = document.getElementById("rotationDesc");
   const label = document.getElementById("rotationLabel");
-  const cover = document.getElementById("rotationCover");
   const read = document.getElementById("rotationRead");
 
   if(!selector) return;
 
   const articles = getArticles();
-  const rotationIds = getHeroConfig()?.rotation || [];
-  const rotationArticles = rotationIds.map(id => articles.find(a => a.id === id)).filter(Boolean).slice(0,5);
+  const configuredIds = getHeroConfig()?.rotation || [];
+  const dailyIds = getDailyRandomReviewIds();
+  const rotationIds = configuredIds.length ? configuredIds : dailyIds;
+
+  const rotationArticles = rotationIds
+    .map(id => articles.find(a => a.id === id))
+    .filter(Boolean)
+    .slice(0,5);
 
   selector.innerHTML = rotationArticles.map((a, i) => `
     <button type="button" class="${i === 0 ? "active" : ""}" data-title="${escapeAttr(a.title)}" data-artist="${escapeAttr(a.author || 'ÓRBITA')}" data-desc="${escapeAttr(a.excerpt)}" data-label="${escapeAttr(a.category)}" data-link="article.html?id=${a.id}" data-cover="${escapeAttr(a.image)}">
@@ -296,8 +332,15 @@ function renderRotation(){
     if(artist) artist.textContent = first.author || "ÓRBITA";
     if(desc) desc.textContent = first.excerpt || "";
     if(label) label.textContent = first.category || "RESEÑA";
-    if(cover) cover.style.setProperty("--cover", `url('${first.image || ""}')`);
+    setRotationCover(first.image || "");
     if(read) read.href = `article.html?id=${first.id}`;
+  }else{
+    if(title) title.textContent = "Sin reseñas";
+    if(artist) artist.textContent = "Agrega reseñas desde el administrador";
+    if(desc) desc.textContent = "Cuando publiques artículos con categoría RESEÑA, aparecerán aquí automáticamente.";
+    if(label) label.textContent = "EN ROTACIÓN";
+    setRotationCover("");
+    if(read) read.href = "#";
   }
 }
 
@@ -309,7 +352,6 @@ function setupRotationSelector(){
   const artist = document.getElementById("rotationArtist");
   const desc = document.getElementById("rotationDesc");
   const label = document.getElementById("rotationLabel");
-  const cover = document.getElementById("rotationCover");
   const read = document.getElementById("rotationRead");
 
   selector.querySelectorAll("button").forEach(button => {
@@ -321,7 +363,7 @@ function setupRotationSelector(){
       if(artist) artist.textContent = button.dataset.artist;
       if(desc) desc.textContent = button.dataset.desc;
       if(label) label.textContent = button.dataset.label;
-      if(cover) cover.style.setProperty("--cover", `url('${button.dataset.cover}')`);
+      setRotationCover(button.dataset.cover || "");
       if(read) read.href = button.dataset.link;
     });
   });

@@ -253,3 +253,9 @@ v33:
 - Agregado botón Importar archivo en Admin > Artículos.
 - Puedes importar artículos en formato JSON.
 - Incluye article-template.json como plantilla.
+
+
+v34:
+- Corregido En Rotación para mostrar imagen del álbum/artículo en el cuadro preview.
+- Se agregó selección diaria aleatoria automática de reseñas si no hay rotación configurada en Hero.
+- La selección diaria toma hasta 5 artículos con categoría RESEÑA.

@@ -2854,3 +2854,28 @@ footer h2{
 .empty-rotation .cover-art{
   background:linear-gradient(135deg, var(--accent), var(--acid));
 }
+
+
+/* v34: rotation cover image fix */
+.cover-art{
+  background-image: var(--cover) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  min-height: 180px;
+}
+
+.now-main .cover-art{
+  width:100%;
+  height:100%;
+}
+
+.cover-art::after{
+  pointer-events:none;
+}
+
+@media(max-width:980px){
+  .cover-art{
+    min-height:92px;
+  }
+}
