@@ -286,3 +286,14 @@ v38:
 - Destacadas: mitad superior queda más limpia para mostrar imagen.
 - Degradado solo de abajo hacia el centro.
 - Artículo: Lo más leído ahora muestra las últimas 6 entradas.
+
+
+v39:
+- Destacadas: título y preview ahora usan casi todo el ancho del contenedor.
+- Reduce altura ocupada por texto.
+
+
+v40:
+- Modo oscuro: texto de Destacadas en blanco para mejor contraste.
+- Botón compartir en artículo copia el link actual.
+- Se muestra mensaje LINK COPIADO.

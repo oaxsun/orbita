@@ -245,9 +245,8 @@ function renderArticlePage(){
     <aside class="article-sidebar">
       <h3>COMPARTIR</h3>
       <div class="share">
-        <a href="#">𝕏</a>
-        <a href="#">f</a>
-        <a href="#">↗</a>
+        <a href="#" data-copy-link>↗</a>
+        <a href="#" data-copy-link>COPIAR</a>
       </div>
 
       <h3>TAGS</h3>
@@ -475,6 +474,49 @@ function setupFeaturedCarousel(){
   restart();
 }
 
+
+function setupShareCopy(){
+  document.addEventListener("click", async (event) => {
+    const btn = event.target.closest("[data-copy-link]");
+    if(!btn) return;
+
+    event.preventDefault();
+
+    const url = window.location.href;
+
+    try{
+      await navigator.clipboard.writeText(url);
+      showCopyToast("LINK COPIADO");
+    }catch(err){
+      const temp = document.createElement("textarea");
+      temp.value = url;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand("copy");
+      temp.remove();
+      showCopyToast("LINK COPIADO");
+    }
+  });
+}
+
+function showCopyToast(message){
+  let toast = document.querySelector(".share-copy-toast");
+  if(!toast){
+    toast = document.createElement("div");
+    toast.className = "share-copy-toast";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add("active");
+
+  clearTimeout(window.__orbitaCopyToastTimer);
+  window.__orbitaCopyToastTimer = setTimeout(() => {
+    toast.classList.remove("active");
+  }, 1800);
+}
+
+
 async function initOrbitaSite(){
   setupTheme();
 
@@ -494,6 +536,7 @@ async function initOrbitaSite(){
   renderRotation();
   setupFeaturedCarousel();
   setupRotationSelector();
+  setupShareCopy();
 }
 
 initOrbitaSite();
