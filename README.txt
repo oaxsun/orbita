@@ -201,3 +201,9 @@ v26:
 - Corrección crítica: el sitio público ahora usa ORBITA_ARTICLES desde Firestore en lugar del const ARTICLES de data.js.
 - Antes Firebase sí podía cargar artículos, pero la web seguía leyendo el fallback local.
 - Agregado console.info para verificar cuántos artículos se cargan desde Firebase.
+
+
+v27:
+- Corrección pública completa: script.js ahora sí espera cargar Firestore antes de renderizar.
+- Home, News, Article y Events usan ORBITA_ARTICLES/ORBITA_EVENTS/ORBITA_HERO si existen.
+- El fallback data.js solo se usa si Firestore falla o no tiene datos.

@@ -175,6 +175,76 @@ function renderArticlePage(){
 
 
 
+
+function renderDynamicEvents(){
+  if(!getEvents().length) return;
+
+  const homeEvents = document.querySelector(".events-list");
+  if(homeEvents){
+    homeEvents.innerHTML = getEvents().slice(0,4).map(ev => `
+      <div class="event-row"><strong>${ev.day}<span>${ev.month}</span></strong><p>${ev.title}<br><small>${ev.venue}</small></p></div>
+    `).join("");
+  }
+
+  const directory = document.querySelector(".events-directory");
+  if(directory){
+    directory.innerHTML = getEvents().map(ev => `
+      <article class="event-directory-card">
+        <strong>${ev.day}<span>${ev.month}</span></strong>
+        <div><h3>${ev.title}</h3><p>${ev.venue}</p></div>
+        <span>${ev.type}</span>
+      </article>
+    `).join("");
+  }
+}
+
+function applyHeroConfig(){
+  if(!getHeroConfig()?.featured?.length) return;
+
+  const selected = getHeroConfig().featured.map(id => getArticles().find(a => a.id === id)).filter(Boolean);
+  if(!selected.length) return;
+
+  const track = document.getElementById("featuredTrack");
+  if(track){
+    track.innerHTML = selected.map((article, index) => `
+      <a class="featured-slide ${index === 0 ? "active" : ""}" href="article.html?id=${article.id}" style="--bgimg:url('${article.image}')">
+        <span class="pickup">PICKUP 🚀</span>
+        <p class="tiny">${String(index + 1).padStart(2,"0")} · ${article.category}</p>
+        <h2>${article.title}</h2>
+        <p class="desc">${article.excerpt}</p>
+        <span class="read-btn">LEER ARTÍCULO →</span>
+      </a>
+    `).join("");
+  }
+
+  if(getHeroConfig().rotation?.length){
+    const selector = document.getElementById("rotationSelector");
+    const rotationArticles = getHeroConfig().rotation.map(id => getArticles().find(a => a.id === id)).filter(Boolean).slice(0,5);
+    if(selector && rotationArticles.length){
+      selector.innerHTML = rotationArticles.map((a, i) => `
+        <button type="button" class="${i === 0 ? "active" : ""}" data-title="${String(a.title).replace(/"/g, '&quot;')}" data-artist="${a.author || 'ÓRBITA'}" data-desc="${String(a.excerpt).replace(/"/g, '&quot;')}" data-label="${a.category}" data-symbol="" data-link="article.html?id=${a.id}" data-cover="${a.image}">
+          <strong>${String(i + 1).padStart(2,"0")}</strong><div><h4>${a.title}</h4><p>${a.category}</p></div>
+        </button>
+      `).join("");
+
+      const first = rotationArticles[0];
+      const title = document.getElementById("rotationTitle");
+      const artist = document.getElementById("rotationArtist");
+      const desc = document.getElementById("rotationDesc");
+      const label = document.getElementById("rotationLabel");
+      const cover = document.getElementById("rotationCover");
+      const read = document.getElementById("rotationRead");
+      if(title) title.textContent = first.title;
+      if(artist) artist.textContent = first.author || "ÓRBITA";
+      if(desc) desc.textContent = first.excerpt;
+      if(label) label.textContent = first.category;
+      if(cover) cover.style.setProperty("--cover", `url('${first.image}')`);
+      if(read) read.href = `article.html?id=${first.id}`;
+    }
+  }
+}
+
+
 function setupRotationSelector(){
   const selector = document.getElementById("rotationSelector");
   if(!selector) return;
@@ -250,9 +320,19 @@ function setupFeaturedCarousel(){
 }
 
 
-setupTheme();
-renderHashtags();
-renderArticles();
-renderArticlePage();
-setupFeaturedCarousel();
-setupRotationSelector();
+async function initOrbitaSite(){
+  if(window.orbitaLoadFirebaseContent){
+    await window.orbitaLoadFirebaseContent();
+  }
+
+  setupTheme();
+  renderHashtags();
+  applyHeroConfig();
+  renderArticles();
+  renderArticlePage();
+  renderDynamicEvents();
+  setupFeaturedCarousel();
+  setupRotationSelector();
+}
+
+initOrbitaSite();
