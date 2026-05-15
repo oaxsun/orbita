@@ -172,6 +172,41 @@ function renderArticles(){
   if(empty) empty.style.display = filtered.length ? "none" : "block";
 }
 
+
+function renderArticleBody(article){
+  const body = Array.isArray(article.body) ? article.body : [];
+  const firstBlock = body.slice(0, 3);
+  const secondBlock = body.slice(3);
+
+  const quote = article.quote
+    ? `<blockquote class="article-highlight-quote">“${article.quote.replace(/^“|”$/g, "")}”</blockquote>`
+    : "";
+
+  const spotify = article.spotifyEmbed
+    ? `<div class="spotify-embed-wrap">
+        <h3>ESCUCHA</h3>
+        <iframe
+          style="border-radius:18px"
+          src="${article.spotifyEmbed}"
+          width="100%"
+          height="352"
+          frameborder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+        </iframe>
+      </div>`
+    : "";
+
+  return `
+    ${firstBlock.map(p => `<p>${p}</p>`).join("")}
+    ${quote}
+    ${secondBlock.map(p => `<p>${p}</p>`).join("")}
+    ${spotify}
+  `;
+}
+
+
 function renderArticlePage(){
   const shell = document.getElementById("articleShell");
   if(!shell) return;
@@ -187,7 +222,7 @@ function renderArticlePage(){
 
   document.title = `${article.title} — Órbita`;
 
-  const related = articles.filter(a => a.id !== article.id).slice(0,2);
+  const related = articles.filter(a => a.id !== article.id).slice(0,6);
 
   shell.innerHTML = `
     <div class="article-main">
@@ -203,8 +238,7 @@ function renderArticlePage(){
       <img class="article-image" src="${article.image || ""}" alt="${article.title || ""}">
 
       <div class="article-body">
-        ${(article.body || []).map(p => `<p>${p}</p>`).join("")}
-        ${article.quote ? `<blockquote class="article-quote">“${article.quote}”</blockquote>` : ""}
+        ${renderArticleBody(article)}
       </div>
     </div>
 

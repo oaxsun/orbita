@@ -15,7 +15,8 @@
     "Segundo párrafo del artículo.",
     "Tercer párrafo del artículo."
   ],
-  "quote": "Frase destacada opcional.",
+  "quote": "FRASE DESTACADA EN MEDIO DEL ARTÍCULO.",
   "publishAt": "",
-  "published": true
+  "published": true,
+  "spotifyEmbed": "https://open.spotify.com/embed/album/..."
 }

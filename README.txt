@@ -266,3 +266,23 @@ v35:
 - LEER vuelve a apuntar al artículo seleccionado.
 - Seleccionar otros artículos vuelve a funcionar.
 - El preview muestra la imagen del artículo/álbum usando el tamaño original.
+
+
+v36:
+- Article page ahora renderiza 3 párrafos, quote grande, últimos párrafos y Spotify embed.
+- El quote usa alto contraste: negro con sombra rosa en modo claro y rosa en modo oscuro.
+- Admin permite capturar Spotify Embed URL.
+- Importador JSON acepta spotifyEmbed.
+
+
+v37:
+- Destacadas ahora muestra más imagen en la mitad superior.
+- El degradado va de abajo hacia arriba.
+- Título, categoría y preview quedan más pequeños en la mitad inferior.
+
+
+v38:
+- Destacadas: texto reducido y limitado a la mitad inferior.
+- Destacadas: mitad superior queda más limpia para mostrar imagen.
+- Degradado solo de abajo hacia el centro.
+- Artículo: Lo más leído ahora muestra las últimas 6 entradas.

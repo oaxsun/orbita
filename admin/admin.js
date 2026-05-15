@@ -459,6 +459,7 @@ function openArticle(id=null){
   $("articleTitle").value = a?.title || "";
   $("articleExcerpt").value = a?.excerpt || "";
   $("articleBody").value = a?.body?.join("\n\n") || "";
+  $("articleSpotifyEmbed").value = a?.spotifyEmbed || "";
   $("articleAuthor").value = a?.author || "ÓRBITA";
   $("articleDate").value = a?.date || "";
   $("articleTags").value = a?.tags?.join(", ") || "";
@@ -491,7 +492,8 @@ function normalizeImportedArticle(raw){
     quote: raw.quote || raw.frase || "",
     createdAt: raw.createdAt || new Date().toISOString(),
     publishAt: raw.publishAt || "",
-    published: raw.published ?? true
+    published: raw.published ?? true,
+    spotifyEmbed: raw.spotifyEmbed || raw.spotify || ""
   };
 }
 
@@ -551,7 +553,8 @@ $("articleForm").addEventListener("submit", async e=>{
     quote: previous?.quote || "",
     createdAt: previous?.createdAt || new Date().toISOString(),
     publishAt:$("articlePublishAt").value,
-    published:$("articlePublished").checked
+    published:$("articlePublished").checked,
+    spotifyEmbed:$("articleSpotifyEmbed").value
   };
   const idx = articles.findIndex(a=>a.id===id);
   if(idx >= 0) articles[idx] = article;
