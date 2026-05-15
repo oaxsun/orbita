@@ -74,3 +74,10 @@ v9:
 
 
 v10: Ajustes de destacadas, New Topics y página de eventos.
+
+
+v11:
+- Mobile: controles del carrusel más pequeños y dentro del contenedor.
+- Mobile: botón Leer Artículo separado del preview text.
+- Mobile: panel de eventos más limpio.
+- Desktop: imagen de New Topics con difuminado más estético.

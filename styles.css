@@ -2035,3 +2035,171 @@ footer h2{
     padding:54px 14px 80px;
   }
 }
+
+
+/* v11 fixes */
+/* Desktop: smoother image blend in New Topics */
+@media(min-width:981px){
+  .news-style-card{
+    background:
+      linear-gradient(90deg,
+        var(--card) 0%,
+        var(--card) 54%,
+        color-mix(in srgb, var(--card) 92%, transparent) 66%,
+        color-mix(in srgb, var(--card) 62%, transparent) 78%,
+        transparent 100%),
+      var(--cardimg) right center/560px auto no-repeat;
+  }
+
+  .news-style-card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(90deg,
+      transparent 0%,
+      transparent 52%,
+      color-mix(in srgb, var(--card) 78%, transparent) 68%,
+      transparent 92%);
+  }
+
+  .news-style-card > *{
+    position:relative;
+    z-index:1;
+  }
+}
+
+/* Mobile: featured carousel controls + read button layout */
+@media(max-width:980px){
+  .featured-layout .featured-carousel,
+  .featured-layout .featured-track{
+    min-height:560px;
+  }
+
+  .featured-layout .featured-slide{
+    min-height:560px;
+    padding:20px 20px 120px;
+    background:
+      linear-gradient(0deg,
+        rgba(255,255,255,.96) 0%,
+        rgba(255,255,255,.93) 38%,
+        rgba(255,255,255,.45) 68%,
+        rgba(255,255,255,.08) 100%),
+      var(--bgimg) center/cover;
+  }
+
+  body.dark .featured-layout .featured-slide{
+    background:
+      linear-gradient(0deg,
+        rgba(5,5,5,.96) 0%,
+        rgba(5,5,5,.92) 42%,
+        rgba(5,5,5,.45) 70%,
+        rgba(5,5,5,.08) 100%),
+      var(--bgimg) center/cover;
+    color:#f7f1df;
+  }
+
+  .featured-layout .featured-slide h2{
+    font-size:30px !important;
+    line-height:.98;
+  }
+
+  .featured-layout .featured-slide .desc{
+    font-size:14px;
+    line-height:1.35;
+    margin-bottom:18px;
+  }
+
+  .featured-slide .read-btn{
+    left:20px;
+    bottom:68px;
+    max-width:calc(100% - 40px);
+    padding:10px 14px;
+    font-size:12px;
+  }
+
+  .carousel-controls{
+    left:20px !important;
+    right:20px !important;
+    bottom:18px !important;
+    width:auto;
+    max-width:none;
+    justify-content:center;
+    gap:10px;
+  }
+
+  .carousel-controls button{
+    width:30px;
+    height:30px;
+    min-width:30px;
+    padding:0;
+    font-size:12px;
+    box-shadow:2px 2px 0 #000;
+  }
+
+  .carousel-dots{
+    flex:0 1 auto;
+    gap:7px;
+  }
+
+  .carousel-dots button{
+    width:8px;
+    height:8px;
+    min-width:8px;
+  }
+
+  /* Mobile events panel refinement */
+  .events-panel{
+    padding:18px;
+  }
+
+  .events-panel .agenda-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+
+  .events-panel .agenda-title span{
+    margin-bottom:0;
+    font-size:11px;
+    padding:7px 12px;
+  }
+
+  .events-panel .agenda-title h3{
+    font-size:20px;
+    margin-bottom:0;
+    text-align:right;
+  }
+
+  .events-list{
+    grid-template-columns:1fr;
+    gap:0;
+  }
+
+  .events-panel .event-row{
+    grid-template-columns:46px 1fr;
+    padding:12px 0;
+    border-bottom:1px solid color-mix(in srgb, var(--panelText) 18%, transparent);
+  }
+
+  .events-panel .event-row:last-child{
+    border-bottom:0;
+  }
+
+  .events-panel .event-row strong{
+    font-size:24px;
+  }
+
+  .events-panel .event-row p{
+    font-size:12px;
+    line-height:1.25;
+  }
+
+  .events-more{
+    margin-top:12px;
+    padding:12px;
+    font-size:12px;
+  }
+}
