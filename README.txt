@@ -259,3 +259,10 @@ v34:
 - Corregido En Rotación para mostrar imagen del álbum/artículo en el cuadro preview.
 - Se agregó selección diaria aleatoria automática de reseñas si no hay rotación configurada en Hero.
 - La selección diaria toma hasta 5 artículos con categoría RESEÑA.
+
+
+v35:
+- Arreglado En Rotación sin cambiar tamaño del frame.
+- LEER vuelve a apuntar al artículo seleccionado.
+- Seleccionar otros artículos vuelve a funcionar.
+- El preview muestra la imagen del artículo/álbum usando el tamaño original.

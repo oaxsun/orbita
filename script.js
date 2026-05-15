@@ -295,9 +295,9 @@ function getDailyRandomReviewIds(){
 }
 
 function setRotationCover(url){
+  const cover = document.getElementById("rotationCover");
   if(!cover) return;
   cover.style.setProperty("--cover", `url("${url || ""}")`);
-  cover.style.backgroundImage = `linear-gradient(135deg, rgba(0,0,0,.06), rgba(0,0,0,.28)), url("${url || ""}")`;
 }
 
 function renderRotation(){
@@ -312,10 +312,9 @@ function renderRotation(){
 
   const articles = getArticles();
   const configuredIds = getHeroConfig()?.rotation || [];
-  const dailyIds = getDailyRandomReviewIds();
-  const rotationIds = configuredIds.length ? configuredIds : dailyIds;
+  const dailyIds = configuredIds.length ? configuredIds : getDailyRandomReviewIds();
 
-  const rotationArticles = rotationIds
+  const rotationArticles = dailyIds
     .map(id => articles.find(a => a.id === id))
     .filter(Boolean)
     .slice(0,5);
@@ -359,12 +358,12 @@ function setupRotationSelector(){
       selector.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       button.classList.add("active");
 
-      if(title) title.textContent = button.dataset.title;
-      if(artist) artist.textContent = button.dataset.artist;
-      if(desc) desc.textContent = button.dataset.desc;
-      if(label) label.textContent = button.dataset.label;
+      if(title) title.textContent = button.dataset.title || "";
+      if(artist) artist.textContent = button.dataset.artist || "";
+      if(desc) desc.textContent = button.dataset.desc || "";
+      if(label) label.textContent = button.dataset.label || "RESEÑA";
       setRotationCover(button.dataset.cover || "");
-      if(read) read.href = button.dataset.link;
+      if(read) read.href = button.dataset.link || "#";
     });
   });
 }

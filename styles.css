@@ -2856,26 +2856,15 @@ footer h2{
 }
 
 
-/* v34: rotation cover image fix */
+
+
+
+/* v35: rotation image fix without changing frame */
 .cover-art{
-  background-image: var(--cover) !important;
+  background-image:
+    linear-gradient(135deg, rgba(0,0,0,.08), rgba(0,0,0,.32)),
+    var(--cover) !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
-  min-height: 180px;
-}
-
-.now-main .cover-art{
-  width:100%;
-  height:100%;
-}
-
-.cover-art::after{
-  pointer-events:none;
-}
-
-@media(max-width:980px){
-  .cover-art{
-    min-height:92px;
-  }
 }
