@@ -1,3 +1,64 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBF7dI6cLaec1hMO6sRYyKTbgmhptq0OEM",
+  authDomain: "orbita-727cd.firebaseapp.com",
+  projectId: "orbita-727cd",
+  storageBucket: "orbita-727cd.firebasestorage.app",
+  messagingSenderId: "823174769372",
+  appId: "1:823174769372:web:c0b62f90917c035dbb6219"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+function articleTime(a){
+  if(a.publishAt) return new Date(a.publishAt).getTime() || 0;
+  if(a.createdAt) return new Date(a.createdAt).getTime() || 0;
+  return 0;
+}
+
+async function loadFirebaseContent(){
+  try{
+    const articlesSnap = await getDocs(collection(db, "articles"));
+    const eventsSnap = await getDocs(collection(db, "events"));
+    const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
+
+    window.ORBITA_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+      .filter(a => a.published !== false)
+      .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now())
+      .sort((a,b) => articleTime(b) - articleTime(a));
+
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+
+    window.ORBITA_EVENTS = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+      .filter(e => !e.sortDate || Number(e.sortDate) >= Number(todayStart))
+      .sort((a,b) => Number(a.sortDate || 0) - Number(b.sortDate || 0));
+
+    window.ORBITA_HERO = heroSnap.exists() ? heroSnap.data() : null;
+
+    console.info("Órbita Firebase loaded", {
+      articles: window.ORBITA_ARTICLES.length,
+      events: window.ORBITA_EVENTS.length,
+      hero: window.ORBITA_HERO
+    });
+  }catch(err){
+    window.ORBITA_ARTICLES = [];
+    window.ORBITA_EVENTS = [];
+    window.ORBITA_HERO = null;
+    console.error("Órbita Firebase failed", err);
+  }
+}
+
+
 function getArticles(){
   return Array.isArray(window.ORBITA_ARTICLES) ? window.ORBITA_ARTICLES : [];
 }
@@ -340,11 +401,7 @@ function setupFeaturedCarousel(){
 async function initOrbitaSite(){
   setupTheme();
 
-  if(window.orbitaLoadFirebaseContent){
-    await window.orbitaLoadFirebaseContent();
-  }else{
-    console.error("No existe window.orbitaLoadFirebaseContent. Revisa que el módulo Firebase esté cargando en el HTML.");
-  }
+  await loadFirebaseContent();
 
   console.info("Órbita render data", {
     articles:getArticles().length,

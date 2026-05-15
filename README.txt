@@ -238,3 +238,11 @@ v31:
 - Sin fallback a data.js.
 - Destacadas, New Topics, En Rotación y Eventos solo muestran Firestore/admin.
 - Agregado log: "Órbita render data".
+
+
+v32:
+- Corrección real del orden de ejecución: script.js ahora es type="module" e importa Firebase directamente.
+- Se eliminaron los módulos Firebase inline de los HTML públicos.
+- Esto evita que script.js corra antes de que exista el loader Firebase.
+- Agregado firebase-test.html para diagnosticar lectura real de Firestore.
+- data.js sigue vacío.

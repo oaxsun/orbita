@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Órbita Firebase Test</title></head>
+<body style="font-family:system-ui;background:#050505;color:#f7f1df;padding:24px">
+<h1>Órbita Firebase Test</h1>
+<pre id="out">Probando conexión...</pre>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBF7dI6cLaec1hMO6sRYyKTbgmhptq0OEM",
+  authDomain: "orbita-727cd.firebaseapp.com",
+  projectId: "orbita-727cd",
+  storageBucket: "orbita-727cd.firebasestorage.app",
+  messagingSenderId: "823174769372",
+  appId: "1:823174769372:web:c0b62f90917c035dbb6219"
+};
+
+const out = document.getElementById("out");
+try{
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const articles = await getDocs(collection(db, "articles"));
+  const events = await getDocs(collection(db, "events"));
+  const hero = await getDoc(doc(db, "siteConfig", "hero"));
+  out.textContent = JSON.stringify({
+    ok:true,
+    articles: articles.size,
+    articleIds: articles.docs.map(d=>d.id),
+    events: events.size,
+    heroExists: hero.exists(),
+    hero: hero.exists() ? hero.data() : null
+  }, null, 2);
+}catch(err){
+  out.textContent = "ERROR:\n" + (err.stack || err.message || String(err));
+}
+</script>
+</body>
+</html>
