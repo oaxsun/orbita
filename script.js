@@ -62,9 +62,7 @@ function renderHashtags(){
 
   track.innerHTML = fullList.map(tag => {
     const active = current === tag.label ? "active" : "";
-    const href = window.location.pathname.includes("article") 
-      ? `index.html?tag=${encodeURIComponent(tag.label)}#tags`
-      : `?tag=${encodeURIComponent(tag.label)}#tags`;
+    const href = `news.html?tag=${encodeURIComponent(tag.label)}#tags`;
 
     return `<a class="hashtag-pill ${active}" href="${href}" data-tag="${tag.label}">
       <span class="emoji">${tag.emoji}</span><span>${tag.label}</span>

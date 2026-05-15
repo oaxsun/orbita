@@ -111,3 +111,9 @@ v16:
 - Mobile: New Topics recupera imagen de fondo con degradado y preview text.
 - Todas las News: se eliminó número izquierdo.
 - Todas las News mantiene degradado de imagen.
+
+
+v17:
+- Los hashtags ahora abren news.html filtrando por ese hashtag.
+- Mobile: la imagen de cada nota cubre todo el contenedor con degradado.
+- Desktop News: las imágenes del archivo tienen el mismo desvanecido estético que New Topics.
