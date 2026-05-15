@@ -469,6 +469,63 @@ function openArticle(id=null){
   $("articleDialog").showModal();
 }
 
+
+function normalizeImportedArticle(raw){
+  const title = raw.title || raw.titulo || "";
+  const id = raw.id || slugify(title);
+  return {
+    id,
+    title,
+    category: (raw.category || raw.categoria || "NOTICIA").toUpperCase(),
+    date: raw.date || raw.fecha || "",
+    read: raw.read || "3 MIN DE LECTURA",
+    author: raw.author || raw.autor || "ÓRBITA",
+    image: raw.image || raw.imagen || "",
+    excerpt: raw.excerpt || raw.preview || raw.previewText || raw["preview text"] || "",
+    tags: Array.isArray(raw.tags || raw.hashtags)
+      ? (raw.tags || raw.hashtags)
+      : String(raw.tags || raw.hashtags || "").split(",").map(t=>t.trim()).filter(Boolean),
+    body: Array.isArray(raw.body || raw.cuerpo)
+      ? (raw.body || raw.cuerpo)
+      : String(raw.body || raw.cuerpo || "").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean),
+    quote: raw.quote || raw.frase || "",
+    createdAt: raw.createdAt || new Date().toISOString(),
+    publishAt: raw.publishAt || "",
+    published: raw.published ?? true
+  };
+}
+
+$("importArticleBtn")?.addEventListener("click", () => {
+  $("importArticleFile").click();
+});
+
+$("importArticleFile")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if(!file) return;
+
+  try{
+    const text = await file.text();
+    const imported = normalizeImportedArticle(JSON.parse(text));
+    const idx = articles.findIndex(a => a.id === imported.id);
+    if(idx >= 0){
+      if(!confirm("Ya existe un artículo con ese ID. ¿Sobrescribir?")) return;
+      articles[idx] = imported;
+    }else{
+      articles.unshift(imported);
+    }
+    await saveArticleDoc(imported);
+    await saveHeroOnly();
+    renderAll();
+    alert("Artículo importado correctamente.");
+  }catch(err){
+    console.error(err);
+    alert("No se pudo importar. Revisa que sea un JSON válido.");
+  }finally{
+    e.target.value = "";
+  }
+});
+
+
 $("createArticle").addEventListener("click",()=>openArticle());
 $("articleList").addEventListener("click",e=>{
   const btn = e.target.closest("[data-edit-article]");

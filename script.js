@@ -90,6 +90,8 @@ function toggleMenu(){
   document.getElementById('overlay')?.classList.toggle('active');
 }
 
+window.toggleMenu = toggleMenu;
+
 function setupTheme(){
   const saved = localStorage.getItem("orbita-theme");
   const hour = new Date().getHours();

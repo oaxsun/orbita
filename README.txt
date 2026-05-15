@@ -246,3 +246,10 @@ v32:
 - Esto evita que script.js corra antes de que exista el loader Firebase.
 - Agregado firebase-test.html para diagnosticar lectura real de Firestore.
 - data.js sigue vacío.
+
+
+v33:
+- Corregido menú de landing en script.js module: toggleMenu ahora está expuesto en window.
+- Agregado botón Importar archivo en Admin > Artículos.
+- Puedes importar artículos en formato JSON.
+- Incluye article-template.json como plantilla.
