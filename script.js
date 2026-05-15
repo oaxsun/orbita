@@ -77,7 +77,14 @@ function renderArticles(){
   const current = getCurrentFilter();
   let filtered = current ? ARTICLES.filter(a => a.tags.includes(current)) : ARTICLES;
   const isNewsPage = window.location.pathname.includes("news.html");
-  if(!isNewsPage) filtered = filtered.slice(0, 5);
+  if(!isNewsPage){
+    if(window.ORBITA_HERO?.topics?.length){
+      const topicIds = window.ORBITA_HERO.topics;
+      filtered = topicIds.map(id => ARTICLES.find(a => a.id === id)).filter(Boolean);
+    }else{
+      filtered = filtered.slice(0, 5);
+    }
+  }
 
   grid.innerHTML = filtered.map((article, index) => `
     <a class="topic-card article-link news-style-card ${isNewsPage ? "archive-card" : ""}" href="article.html?id=${article.id}" style="--cardimg:url('${article.image}')">

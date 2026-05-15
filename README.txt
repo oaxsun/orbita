@@ -117,3 +117,81 @@ v17:
 - Los hashtags ahora abren news.html filtrando por ese hashtag.
 - Mobile: la imagen de cada nota cubre todo el contenedor con degradado.
 - Desktop News: las imágenes del archivo tienen el mismo desvanecido estético que New Topics.
+
+
+v18:
+- Página Todas las News centrada a 4/6 del ancho.
+- Corregido desvanecido de imagen en News para que no se vea división.
+- Menú actualizado: Home, News, Eventos, Tags.
+
+
+v19:
+- Agregado panel /admin.
+- Tres accesos: Contenido Hero, Artículos y Eventos.
+- Artículos: crear, editar y eliminar.
+- Eventos: crear, editar y eliminar.
+- Contenido Hero: seleccionar destacadas, New Topics y En Rotación.
+- Exportación JSON para preparar integración con GitHub/Decap.
+IMPORTANTE: por ser GitHub Pages estático, este admin guarda en localStorage y exporta JSON; para publicar directo al repo se requiere conectar Decap CMS o GitHub API.
+
+
+v20:
+- Eventos elimina automáticamente eventos pasados al abrir el admin.
+- Artículos ahora tiene búsqueda.
+- Artículos tiene tabs: Todos, Publicados y No publicados.
+- Artículos permite programar publicación por fecha/hora.
+- Artículos tiene switch Publicado/No publicado.
+- Contenido Hero: Destacadas y En Rotación usan popup con búsqueda + últimos 10 artículos.
+- New Topics ahora toma automáticamente las últimas 10 entradas publicadas.
+- En Rotación filtra solo artículos con categoría RESEÑA.
+
+
+v21:
+- Destacadas ahora permite de 3 a 5 artículos.
+- Cada destacada tiene botón X para eliminarla cuando hay más de 3.
+- Botón Agregar destacada abre selector con búsqueda.
+- Parámetro automático para usar diariamente los 3 artículos más recientes como destacadas.
+- Categorías agregadas: Concurso, Arte, Podcast, Highlight.
+
+
+v22:
+- Destacadas ahora permite reordenar con botones ↑ / ↓.
+- Artículos se mantienen ordenados del más reciente al más antiguo.
+- Estado de artículo ahora es texto simple, no burbuja verde.
+
+
+v23:
+- Eliminados botones de subir/bajar en Destacadas.
+- Reordenamiento de Destacadas con drag & drop.
+- Agregado login al admin.
+- Usuario: wolffel
+- Password: okcomputer
+Nota: este login es protección visual/client-side; para producción real debe conectarse a auth del CMS/GitHub.
+
+
+v23b:
+- Corregido bug visual donde el admin colapsaba hacia la izquierda.
+- Restaurado layout correcto del contenido principal.
+
+
+v23c:
+- Login ahora aparece como pantalla completa real.
+- El admin queda oculto hasta iniciar sesión.
+- Se evita entrada automática por sesiones previas del navegador.
+
+
+v24:
+- Login conectado a Firebase Authentication.
+- Eliminados usuario/password hardcodeados.
+- Sesión real mediante Firebase Auth.
+- El panel permanece oculto hasta autenticar correctamente.
+
+IMPORTANTE:
+- Usa el EMAIL del usuario creado en Firebase Auth.
+- Ya no uses "wolffel", ahora usa el email registrado.
+
+
+v25:
+- Admin conectado a Firestore.
+- Sitio público lee contenido desde Firestore.
+- Incluye firestore.rules y FIREBASE_SETUP.txt.

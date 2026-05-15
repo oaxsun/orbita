@@ -43,12 +43,11 @@
     </div>
 
     <div class="overlay-links">
-      <a href="index.html">POST →</a>
-      <a href="#ranking">RANKING →</a>
-      <a href="#categories">CATEGORY →</a>
-      <a href="#tags">TAG →</a>
-      <a href="#">ABOUT →</a>
-      <a href="#">SOCIAL →</a>
+      <a href="index.html">HOME →</a>
+      <a href="news.html">NEWS →</a>
+      <a href="events.html">EVENTOS →</a>
+      <a href="news.html#tags">TAGS →</a>
+      <a href="admin/">ADMIN →</a>
     </div>
   </div>
 
@@ -171,6 +170,59 @@
     <h2>ÓRBITA</h2>
   </footer>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDocs,
+      getDoc,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBF7dI6cLaec1hMO6sRYyKTbgmhptq0OEM",
+      authDomain: "orbita-727cd.firebaseapp.com",
+      projectId: "orbita-727cd",
+      storageBucket: "orbita-727cd.firebasestorage.app",
+      messagingSenderId: "823174769372",
+      appId: "1:823174769372:web:c0b62f90917c035dbb6219"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.orbitaLoadFirebaseContent = async function(){
+      try{
+        const articlesSnap = await getDocs(query(collection(db, "articles"), orderBy("createdAt", "desc")));
+        const eventsSnap = await getDocs(query(collection(db, "events"), orderBy("sortDate", "asc")));
+        const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
+
+        const firebaseArticles = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+          .filter(a => a.published !== false)
+          .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now());
+
+        const firebaseEvents = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+          .filter(e => !e.sortDate || Number(e.sortDate) >= Number(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime()));
+
+        if(firebaseArticles.length){
+          window.ARTICLES = firebaseArticles;
+        }
+
+        if(firebaseEvents.length){
+          window.ORBITA_EVENTS = firebaseEvents;
+        }
+
+        if(heroSnap.exists()){
+          window.ORBITA_HERO = heroSnap.data();
+        }
+      }catch(err){
+        console.warn("Firebase content fallback to local data.js", err);
+      }
+    };
+  </script>
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
