@@ -3555,13 +3555,7 @@ body.dark .featured-slide .desc{
   }
 }
 
-/* v16: mobile polish - prevent horizontal drift and keep featured CTA clear */
-html,
-body{
-  max-width:100%;
-  overflow-x:hidden;
-}
-
+/* v18: mobile-only polish - no horizontal drift, desktop featured untouched */
 *{
   box-sizing:border-box;
 }
@@ -3572,22 +3566,29 @@ iframe{
   max-width:100%;
 }
 
-@media(max-width:980px){
+html,
+body{
+  max-width:100%;
+  overflow-x:clip;
+}
+
+@supports not (overflow: clip){
+  html,
+  body{
+    overflow-x:hidden;
+  }
+}
+
+@media(max-width:760px){
   body{
     width:100%;
-    overflow-x:hidden;
-    touch-action:pan-y;
+    overscroll-behavior-x:none;
   }
 
   .site-wrap,
   main,
-  section,
   header,
   footer,
-  .container,
-  .featured-layout,
-  .featured-carousel,
-  .featured-track,
   .news-grid,
   .category-grid,
   .topic-grid{
@@ -3597,20 +3598,26 @@ iframe{
 
   .featured-layout{
     width:100%;
+    max-width:100%;
     grid-template-columns:1fr !important;
+    gap:16px;
+    overflow:visible;
   }
 
-  .featured-carousel,
-  .featured-track{
+  .featured-layout .featured-carousel,
+  .featured-layout .featured-track{
     width:100% !important;
+    max-width:100% !important;
     min-width:0 !important;
+    overflow:hidden;
   }
 
-  .featured-slide{
+  .featured-layout .featured-slide{
     width:100% !important;
+    max-width:100% !important;
     min-width:0 !important;
     min-height:560px !important;
-    padding-bottom:118px !important;
+    padding:0 !important;
     overflow:hidden !important;
   }
 
@@ -3625,7 +3632,7 @@ iframe{
 
   .featured-slide .desc{
     display:block !important;
-    margin-bottom:128px !important;
+    margin-bottom:132px !important;
     padding-right:0 !important;
     font-size:13px !important;
     line-height:1.35 !important;
@@ -3640,7 +3647,7 @@ iframe{
     white-space:nowrap !important;
   }
 
-  .carousel-controls{
+  .featured-layout .carousel-controls{
     left:20px !important;
     right:20px !important;
     bottom:18px !important;
