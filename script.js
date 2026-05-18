@@ -47,6 +47,27 @@ function isArticlePublic(article){
 }
 
 
+
+function normalizeBool(value){
+  if(value === true || value === "true" || value === 1 || value === "1" || value === "published" || value === "Publicado") return true;
+  if(value === false || value === "false" || value === 0 || value === "0" || value === "draft" || value === "No publicado") return false;
+  return null;
+}
+
+function isArticleVisibleOnPublic(article){
+  const publishTime = parsePublishTime(article.publishAt);
+  if(publishTime && publishTime > Date.now()) return false;
+
+  const published = normalizeBool(article.published);
+  const status = normalizeBool(article.status);
+
+  if(published === false && publishTime && publishTime <= Date.now()) return true;
+  if(published === false && !publishTime) return false;
+  if(status === false && !publishTime) return false;
+
+  return true;
+}
+
 function articleTime(a){
   if(a.publishAt) return new Date(a.publishAt).getTime() || 0;
   if(a.createdAt) return new Date(a.createdAt).getTime() || 0;
@@ -59,8 +80,10 @@ async function loadFirebaseContent(){
     const eventsSnap = await getDocs(collection(db, "events"));
     const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
 
-    window.ORBITA_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
-      .filter(isArticlePublic)
+    const rawArticles = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+
+    window.ORBITA_ARTICLES = rawArticles
+      .filter(isArticleVisibleOnPublic)
       .sort((a,b) => articleTime(b) - articleTime(a));
 
     const today = new Date();
@@ -72,6 +95,7 @@ async function loadFirebaseContent(){
 
     window.ORBITA_HERO = heroSnap.exists() ? heroSnap.data() : null;
 
+    window.DRKPRTY_DEBUG_DATA = { rawArticles: rawArticles.length, visibleArticles: window.ORBITA_ARTICLES.length, rawArticlesSample: rawArticles.slice(0,5) };
     console.info("DRKPRTY Firebase loaded", {
       articles: window.ORBITA_ARTICLES.length,
       events: window.ORBITA_EVENTS.length,

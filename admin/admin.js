@@ -227,7 +227,7 @@ async function seedEvents(){
 async function saveHeroOnly(){
   if(!fb) return;
   await fb.setDoc(fb.doc(fb.db, "siteConfig", "hero"), {
-    featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured,
+    featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured.filter(Boolean).slice(0,5),
     autoFeatured: hero.autoFeatured,
     topics: publishedArticles().slice(0,10).map(a=>a.id),
     rotation: hero.rotation
@@ -318,9 +318,9 @@ function syncAutoFeatured(){
 function renderHero(){
   syncAutoFeatured();
   $("heroAutoFeatured").checked = !!hero.autoFeatured;
-  renderSlotList("heroFeatured","featured",hero.featured.length,"published");
+  renderSlotList("heroFeatured","featured",Math.max(3, hero.featured.length),"published");
   renderSlotList("heroRotation","rotation",5,"review");
-  $("addFeaturedSlot").disabled = hero.autoFeatured || hero.featured.length >= 5;
+  $("addFeaturedSlot").disabled = hero.featured.length >= 5;
   $("addFeaturedSlot").textContent = hero.featured.length >= 5 ? "Máximo 5 destacadas" : "Agregar destacada";
   $("addFeaturedSlot").onclick = () => window.drkprtyAddFeatured();
 
@@ -355,25 +355,9 @@ $("addFeaturedSlot").addEventListener("click", e=>{
 
 $("hero").addEventListener("click", async e=>{
   const remove = e.target.closest("[data-remove-featured]");
-  if(remove && !remove.disabled){
-    const index = Number(remove.dataset.removeFeatured);
-    if(hero.featured.length > 3){
-      hero.featured.splice(index, 1);
-      await saveHeroOnly();
-      renderHero();
-    }
-    return;
-  }
-
+  if(remove){ e.preventDefault(); await window.drkprtyRemoveFeatured(Number(remove.dataset.removeFeatured)); return; }
   const btn = e.target.closest("[data-select-slot]");
-  if(!btn) return;
-  if(btn.dataset.selectSlot === "featured" && hero.autoFeatured) return;
-
-  selectContext = { key:btn.dataset.selectSlot, index:Number(btn.dataset.index), filter:btn.dataset.filter };
-  $("selectDialogTitle").textContent = selectContext.key === "rotation" ? "Seleccionar reseña" : "Seleccionar artículo";
-  $("selectArticleSearch").value = "";
-  renderSelectList();
-  $("selectArticleDialog").showModal();
+  if(btn){ e.preventDefault(); window.drkprtySelectHeroSlot(btn.dataset.selectSlot, Number(btn.dataset.index), btn.dataset.filter); }
 });
 
 let draggedFeaturedIndex = null;
@@ -430,7 +414,7 @@ function renderSelectList(){
         <p>${a.excerpt}</p>
         <span class="pill">${a.category}</span>
       </div>
-      <button type="button" class="primary" onclick="window.drkprtyPickArticle('${a.id}')" data-pick-article="${a.id}">Elegir</button>
+      <button type="button" class="primary" data-pick-article="${a.id}">Elegir</button>
     </article>
   `).join("");
 }
@@ -834,7 +818,7 @@ document.addEventListener("click", async (e) => {
 });
 $("exportAll").addEventListener("click",()=>{
   download("orbita-content-export.json", {articles, events, hero:{
-    featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured,
+    featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured.filter(Boolean).slice(0,5),
     autoFeatured: hero.autoFeatured,
     topics: publishedArticles().slice(0,10).map(a=>a.id),
     rotation: hero.rotation
@@ -856,3 +840,16 @@ function renderAll(){
   renderArticles();
   renderEvents();
 }
+
+
+/* v10 hero direct delegation */
+document.addEventListener("click", async (e)=>{
+  const add = e.target.closest("#addFeaturedSlot");
+  if(add){ e.preventDefault(); window.drkprtyAddFeatured(); return; }
+
+  const select = e.target.closest("[data-select-slot]");
+  if(select){ e.preventDefault(); window.drkprtySelectHeroSlot(select.dataset.selectSlot, Number(select.dataset.index), select.dataset.filter); return; }
+
+  const pick = e.target.closest("[data-pick-article]");
+  if(pick){ e.preventDefault(); await window.drkprtyPickArticle(pick.dataset.pickArticle); return; }
+});
