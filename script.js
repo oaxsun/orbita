@@ -56,14 +56,16 @@ function normalizeBool(value){
 
 function isArticleVisibleOnPublic(article){
   const publishTime = parsePublishTime(article.publishAt);
+
+  // Scheduled articles must stay hidden until their publish date.
   if(publishTime && publishTime > Date.now()) return false;
 
   const published = normalizeBool(article.published);
   const status = normalizeBool(article.status);
 
-  if(published === false && publishTime && publishTime <= Date.now()) return true;
-  if(published === false && !publishTime) return false;
-  if(status === false && !publishTime) return false;
+  // Manual unpublish must always win, even if publishAt is in the past.
+  if(published === false) return false;
+  if(status === false) return false;
 
   return true;
 }
@@ -471,12 +473,19 @@ function renderFeatured(){
   const articles = getArticles();
   const hero = getHeroConfig();
   const featuredIds = hero?.featured || [];
+  const featuredCount = Math.min(5, Math.max(3, Number(hero?.featuredCount || featuredIds.length || 3)));
   let selected = featuredIds.map(id => articles.find(a => a.id === id)).filter(Boolean);
 
-  // If the hero is automatic, empty, or has stale IDs, keep the main page alive with the latest 3.
-  if(hero?.autoFeatured || selected.length < Math.min(3, articles.length)){
-    selected = articles.slice(0, 3);
+  // Auto mode respects manual picks as priority/pinned slots.
+  // Empty slots are filled with the latest published articles up to the configured count.
+  if(hero?.autoFeatured || selected.length < featuredCount){
+    const used = new Set(selected.map(a => a.id));
+    selected = selected.concat(
+      articles.filter(a => !used.has(a.id)).slice(0, featuredCount - selected.length)
+    );
   }
+
+  selected = selected.slice(0, featuredCount);
 
   console.info("DRKPRTY renderFeatured", {
     totalArticles: articles.length,

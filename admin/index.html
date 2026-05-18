@@ -73,11 +73,20 @@
     <section id="hero" class="panel active">
       <div class="card">
         <h3>Destacadas</h3>
-        <p class="muted">Selecciona de 3 a 5 artículos del carrusel principal. Puedes activar modo automático diario.</p>
-        <label class="switch-row hero-auto">
-          <span>Usar automáticamente los 3 artículos más recientes cada día</span>
-          <input id="heroAutoFeatured" type="checkbox" />
-        </label>
+        <p class="muted">Elige cuántas destacadas mostrar. En automático se rellenan con las últimas entradas publicadas; los slots manuales funcionan como prioridad para elegir la principal o fijar artículos concretos.</p>
+        <div class="form-grid">
+          <label>Número de destacadas
+            <select id="heroFeaturedCount">
+              <option value="3">3 destacadas</option>
+              <option value="4">4 destacadas</option>
+              <option value="5">5 destacadas</option>
+            </select>
+          </label>
+          <label class="switch-row hero-auto">
+            <span>Autorrellenar con las últimas entradas publicadas</span>
+            <input id="heroAutoFeatured" type="checkbox" />
+          </label>
+        </div>
         <div id="heroFeatured" class="slot-list"></div>
         <button class="primary add-slot-btn" id="addFeaturedSlot" type="button">Agregar destacada</button>
       </div>

@@ -12,6 +12,7 @@ let events = [];
 let hero = {
   featured: [],
   autoFeatured:false,
+  featuredCount:3,
   topics: [],
   rotation: []
 };
@@ -107,28 +108,47 @@ function getArticle(id){
   return articles.find(a => a.id === id);
 }
 
+function featuredLimit(){
+  const value = Number(hero.featuredCount || 3);
+  return Math.min(5, Math.max(3, Number.isFinite(value) ? value : 3));
+}
+
 function getAutoFeaturedIds(){
-  return publishedArticles().slice(0,3).map(a => a.id);
+  const limit = featuredLimit();
+  const manual = (hero.featured || []).filter(Boolean);
+  const used = new Set();
+  const selected = [];
+
+  manual.forEach(id => {
+    const article = getArticle(id);
+    if(article && isPublished(article) && !used.has(id)){
+      used.add(id);
+      selected.push(id);
+    }
+  });
+
+  publishedArticles().forEach(article => {
+    if(selected.length >= limit) return;
+    if(!used.has(article.id)){
+      used.add(article.id);
+      selected.push(article.id);
+    }
+  });
+
+  return selected.slice(0, limit);
 }
 
 function syncAutoFeatured(){
-  if(hero.autoFeatured){
-    hero.featured = getAutoFeaturedIds();
-  }
+  // Auto mode no longer overwrites manual picks. Manual slots work as priority/pinned
+  // items and the remaining slots are filled with the latest published articles.
 }
 
 function normalizeHero(){
   if(typeof hero.autoFeatured === "undefined") hero.autoFeatured = false;
+  hero.featuredCount = featuredLimit();
   if(!Array.isArray(hero.featured)) hero.featured = [];
   if(!Array.isArray(hero.rotation)) hero.rotation = [];
   if(!Array.isArray(hero.topics)) hero.topics = [];
-
-  if(hero.featured.length < 3){
-    const fallback = getAutoFeaturedIds();
-    fallback.forEach(id => {
-      if(hero.featured.length < 3 && !hero.featured.includes(id)) hero.featured.push(id);
-    });
-  }
 
   hero.featured = hero.featured.filter(Boolean).slice(0,5);
   hero.rotation = hero.rotation.filter(Boolean).slice(0,5);
@@ -180,6 +200,7 @@ async function loadAllFromFirestore(){
     hero = {
       featured: getAutoFeaturedIds(),
       autoFeatured:false,
+      featuredCount:3,
       topics: [],
       rotation: articles.filter(a => String(a.category || "").toUpperCase() === "RESEÑA").slice(0,5).map(a => a.id)
     };
@@ -203,8 +224,9 @@ async function saveHeroOnly(){
   normalizeHero();
 
   await fb.setDoc(fb.doc(fb.db, "siteConfig", "hero"), {
-    featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured,
+    featured: hero.featured.filter(Boolean).slice(0, featuredLimit()),
     autoFeatured: hero.autoFeatured,
+    featuredCount: featuredLimit(),
     topics: publishedArticles().slice(0,10).map(a => a.id),
     rotation: hero.rotation
   }, { merge:true });
@@ -251,16 +273,16 @@ function renderSlotList(boxId, key, count, filterFn){
   if(!box) return;
 
   box.innerHTML = "";
-  const slotCount = key === "featured" ? Math.max(3, count || 0) : count;
+  const slotCount = key === "featured" ? featuredLimit() : count;
 
   for(let i=0; i<slotCount; i++){
     const a = getArticle(hero[key]?.[i]);
-    const canRemove = key === "featured" && hero.featured.length > 3 && !hero.autoFeatured;
+    const canRemove = key === "featured" && hero.featured.length > 0;
     const card = document.createElement("article");
     card.className = "slot-card";
 
     if(key === "featured"){
-      card.draggable = !hero.autoFeatured;
+      card.draggable = true;
       card.dataset.featuredIndex = String(i);
     }
 
@@ -270,8 +292,8 @@ function renderSlotList(boxId, key, count, filterFn){
         <h4>${a ? a.title : "Sin seleccionar"}</h4>
         <p>${a ? `${a.category} · ${a.date}` : "Selecciona una entrada"}</p>
       </div>
-      <button type="button" class="primary" data-select-slot="${key}" data-index="${i}" data-filter="${filterFn || ""}" ${key === "featured" && hero.autoFeatured ? "disabled" : ""}>Seleccionar</button>
-      ${key === "featured" ? `<button type="button" class="slot-remove" data-remove-featured="${i}" ${canRemove ? "" : "disabled"} title="${canRemove ? "Eliminar de destacadas" : "Mínimo 3 destacadas"}">×</button>` : ""}
+      <button type="button" class="primary" data-select-slot="${key}" data-index="${i}" data-filter="${filterFn || ""}">Seleccionar</button>
+      ${key === "featured" ? `<button type="button" class="slot-remove" data-remove-featured="${i}" ${canRemove ? "" : "disabled"} title="${canRemove ? "Quitar selección manual" : "Slot automático"}">×</button>` : ""}
     `;
     box.appendChild(card);
   }
@@ -282,11 +304,12 @@ function renderHero(){
   normalizeHero();
 
   $("heroAutoFeatured").checked = !!hero.autoFeatured;
-  renderSlotList("heroFeatured", "featured", hero.featured.length, "published");
+  if($("heroFeaturedCount")) $("heroFeaturedCount").value = String(featuredLimit());
+  renderSlotList("heroFeatured", "featured", featuredLimit(), "published");
   renderSlotList("heroRotation", "rotation", 5, "review");
 
-  $("addFeaturedSlot").disabled = hero.autoFeatured || hero.featured.length >= 5;
-  $("addFeaturedSlot").textContent = hero.featured.length >= 5 ? "Máximo 5 destacadas" : "Agregar destacada";
+  $("addFeaturedSlot").disabled = featuredLimit() >= 5;
+  $("addFeaturedSlot").textContent = featuredLimit() >= 5 ? "Máximo 5 destacadas" : "Agregar otro slot";
 
   const auto = publishedArticles().slice(0,10);
   $("heroTopicsAuto").innerHTML = auto.map((a,i)=>`
@@ -336,7 +359,7 @@ async function pickArticle(articleId){
   if(!selectContext) return;
 
   hero[selectContext.key][selectContext.index] = articleId;
-  if(selectContext.key === "featured") hero.featured = hero.featured.filter(Boolean).slice(0,5);
+  if(selectContext.key === "featured") hero.featured = hero.featured.filter(Boolean).slice(0, featuredLimit());
 
   await saveHeroOnly();
   renderHero();
@@ -493,7 +516,7 @@ function normalizeImportedArticle(raw){
     quote: raw.quote || raw.frase || "",
     createdAt: raw.createdAt || new Date().toISOString(),
     publishAt: raw.publishAt || "",
-    published: raw.publishAt && parsePublishTime(raw.publishAt) > Date.now() ? "scheduled" : (raw.published ?? true),
+    published: raw.published ?? true,
     spotifyEmbed: raw.spotifyEmbed || raw.spotify || ""
   };
 }
@@ -606,21 +629,20 @@ document.addEventListener("click", async (e)=>{
   const addFeatured = e.target.closest("#addFeaturedSlot");
   if(addFeatured){
     e.preventDefault();
-    if(hero.autoFeatured || hero.featured.length >= 5) return;
-    openArticleSelector({ key:"featured", index:hero.featured.length, filter:"published", isNewSlot:true });
+    if(featuredLimit() >= 5) return;
+    hero.featuredCount = featuredLimit() + 1;
+    renderHero();
     return;
   }
 
   const removeFeatured = e.target.closest("[data-remove-featured]");
   if(removeFeatured){
     e.preventDefault();
-    if(removeFeatured.disabled || hero.autoFeatured) return;
+    if(removeFeatured.disabled) return;
     const index = Number(removeFeatured.dataset.removeFeatured);
-    if(hero.featured.length > 3){
-      hero.featured.splice(index, 1);
-      await saveHeroOnly();
-      renderHero();
-    }
+    hero.featured.splice(index, 1);
+    await saveHeroOnly();
+    renderHero();
     return;
   }
 
@@ -673,7 +695,13 @@ document.addEventListener("click", async (e)=>{
 
 $("heroAutoFeatured").addEventListener("change", async (e)=>{
   hero.autoFeatured = e.target.checked;
-  if(hero.autoFeatured) hero.featured = getAutoFeaturedIds();
+  await saveHeroOnly();
+  renderHero();
+});
+
+$("heroFeaturedCount")?.addEventListener("change", async (e)=>{
+  hero.featuredCount = Math.min(5, Math.max(3, Number(e.target.value || 3)));
+  hero.featured = hero.featured.filter(Boolean).slice(0, featuredLimit());
   await saveHeroOnly();
   renderHero();
 });
@@ -724,7 +752,7 @@ $("articleForm").addEventListener("submit", async e=>{
     quote: previous?.quote || "",
     createdAt: previous?.createdAt || new Date().toISOString(),
     publishAt:$("articlePublishAt").value,
-    published: publishTime && publishTime > Date.now() ? "scheduled" : $("articlePublished").checked,
+    published: $("articlePublished").checked,
     spotifyEmbed:$("articleSpotifyEmbed").value
   };
 
@@ -839,8 +867,9 @@ $("exportAll").addEventListener("click",()=>{
     articles,
     events,
     hero:{
-      featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured,
+      featured: hero.featured.filter(Boolean).slice(0, featuredLimit()),
       autoFeatured: hero.autoFeatured,
+      featuredCount: featuredLimit(),
       topics: publishedArticles().slice(0,10).map(a=>a.id),
       rotation: hero.rotation
     }
@@ -860,7 +889,7 @@ $("logoutBtn")?.addEventListener("click", async ()=>{
 /* Drag & drop for featured */
 $("heroFeatured").addEventListener("dragstart", e=>{
   const card = e.target.closest("[data-featured-index]");
-  if(!card || hero.autoFeatured) return;
+  if(!card) return;
   draggedFeaturedIndex = Number(card.dataset.featuredIndex);
   card.classList.add("dragging");
   e.dataTransfer.effectAllowed = "move";
@@ -875,7 +904,7 @@ $("heroFeatured").addEventListener("dragend", e=>{
 
 $("heroFeatured").addEventListener("dragover", e=>{
   const card = e.target.closest("[data-featured-index]");
-  if(!card || draggedFeaturedIndex === null || hero.autoFeatured) return;
+  if(!card || draggedFeaturedIndex === null) return;
   e.preventDefault();
   document.querySelectorAll(".slot-card").forEach(c=>c.classList.remove("drag-over"));
   card.classList.add("drag-over");
@@ -883,7 +912,7 @@ $("heroFeatured").addEventListener("dragover", e=>{
 
 $("heroFeatured").addEventListener("drop", async e=>{
   const card = e.target.closest("[data-featured-index]");
-  if(!card || draggedFeaturedIndex === null || hero.autoFeatured) return;
+  if(!card || draggedFeaturedIndex === null) return;
   e.preventDefault();
 
   const targetIndex = Number(card.dataset.featuredIndex);
