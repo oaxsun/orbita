@@ -494,3 +494,13 @@ input[type="file"]{
 dialog::backdrop{
   background:rgba(0,0,0,.72);
 }
+
+
+/* v9 hero admin click fix */
+.slot-card button{
+  pointer-events:auto;
+}
+
+.add-slot-btn:not(:disabled){
+  cursor:pointer;
+}

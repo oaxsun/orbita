@@ -1,0 +1,14 @@
+DRKPRTY v9 fixes
+
+- Public site now uses robust publication logic:
+  - published true/string true accepted.
+  - scheduled articles with publishAt due are shown.
+  - future publishAt stays hidden.
+- Admin now automatically flips due scheduled articles to published:true in Firestore when loaded.
+- Save article forces published:true if publishAt time is already due.
+- Hero controls now have direct fallback handlers:
+  - Agregar destacada
+  - Seleccionar destacada
+  - Elegir artículo
+  - Remove featured
+- Removed the over-aggressive v8 capture delegation that could block hero controls.

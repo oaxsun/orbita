@@ -107,10 +107,24 @@ function purgePastEvents(){
   if(events.length !== before) saveHeroOnly();
 }
 
+
+function parseAdminPublishTime(value){
+  if(!value) return null;
+  if(typeof value === "object" && typeof value.toDate === "function") return value.toDate().getTime();
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) ? time : null;
+}
+
+function normalizePublishState(article){
+  const publishTime = parseAdminPublishTime(article.publishAt);
+  if(publishTime && publishTime <= Date.now()) return {...article, published:true};
+  return article;
+}
+
 function isPublished(article){
-  const publishTime = article.publishAt ? new Date(article.publishAt).getTime() : null;
+  const publishTime = parseAdminPublishTime(article.publishAt);
   if(publishTime && publishTime <= Date.now()) return true;
-  if(article.published === false) return false;
+  if(article.published === false || article.published === "false") return false;
   if(publishTime && publishTime > Date.now()) return false;
   return true;
 }
@@ -157,6 +171,8 @@ async function loadAllFromFirestore(){
     await seedArticles();
   }
 
+  await publishDueScheduledArticles();
+
   const eventSnap = await fb.getDocs(fb.query(fb.collection(fb.db, "events"), fb.orderBy("sortDate", "asc")));
   events = eventSnap.docs.map(d => ({ id:d.id, ...d.data() }));
 
@@ -183,6 +199,21 @@ async function loadAllFromFirestore(){
   if(hero.featured.length < 3) hero.featured = publishedArticles().slice(0,3).map(a=>a.id);
   if(hero.featured.length > 5) hero.featured = hero.featured.slice(0,5);
   if(!Array.isArray(hero.rotation)) hero.rotation = [];
+}
+
+
+async function publishDueScheduledArticles(){
+  const due = articles.filter(a => {
+    const publishTime = parseAdminPublishTime(a.publishAt);
+    return publishTime && publishTime <= Date.now() && (a.published === false || a.published === "false");
+  });
+
+  if(!due.length) return;
+
+  await Promise.all(due.map(a => {
+    a.published = true;
+    return saveArticleDoc(a);
+  }));
 }
 
 async function seedArticles(){
@@ -267,8 +298,8 @@ function renderSlotList(boxId, key, count, filterFn){
         <h4>${a ? a.title : "Sin seleccionar"}</h4>
         <p>${a ? `${a.category} · ${a.date}` : "Selecciona una entrada"}</p>
       </div>
-      <button class="primary" data-select-slot="${key}" data-index="${i}" data-filter="${filterFn || ""}">Seleccionar</button>
-      ${key === "featured" ? `<button class="slot-remove" data-remove-featured="${i}" ${canRemove ? "" : "disabled"} title="${canRemove ? "Eliminar de destacadas" : "Mínimo 3 destacadas"}">×</button>` : ""}
+      <button type="button" class="primary" onclick="window.drkprtySelectHeroSlot('${key}', ${i}, '${filterFn || ""}')" data-select-slot="${key}" data-index="${i}" data-filter="${filterFn || ""}">Seleccionar</button>
+      ${key === "featured" ? `<button type="button" class="slot-remove" onclick="window.drkprtyRemoveFeatured(${i})" data-remove-featured="${i}" ${canRemove ? "" : "disabled"} title="${canRemove ? "Eliminar de destacadas" : "Mínimo 3 destacadas"}">×</button>` : ""}
     `;
     box.appendChild(card);
   }
@@ -291,6 +322,7 @@ function renderHero(){
   renderSlotList("heroRotation","rotation",5,"review");
   $("addFeaturedSlot").disabled = hero.autoFeatured || hero.featured.length >= 5;
   $("addFeaturedSlot").textContent = hero.featured.length >= 5 ? "Máximo 5 destacadas" : "Agregar destacada";
+  $("addFeaturedSlot").onclick = () => window.drkprtyAddFeatured();
 
   const auto = publishedArticles().slice(0,10);
   $("heroTopicsAuto").innerHTML = auto.map((a,i)=>`
@@ -316,13 +348,9 @@ $("heroAutoFeatured").addEventListener("change", async e=>{
   window.scrollTo({ top: previousScroll, behavior: "instant" });
 });
 
-$("addFeaturedSlot").addEventListener("click", ()=>{
-  if(hero.autoFeatured || hero.featured.length >= 5) return;
-  selectContext = { key:"featured", index:hero.featured.length, filter:"published", isNewSlot:true };
-  $("selectDialogTitle").textContent = "Agregar destacada";
-  $("selectArticleSearch").value = "";
-  renderSelectList();
-  $("selectArticleDialog").showModal();
+$("addFeaturedSlot").addEventListener("click", e=>{
+  e.preventDefault();
+  window.drkprtyAddFeatured();
 });
 
 $("hero").addEventListener("click", async e=>{
@@ -402,7 +430,7 @@ function renderSelectList(){
         <p>${a.excerpt}</p>
         <span class="pill">${a.category}</span>
       </div>
-      <button class="primary" data-pick-article="${a.id}">Elegir</button>
+      <button type="button" class="primary" onclick="window.drkprtyPickArticle('${a.id}')" data-pick-article="${a.id}">Elegir</button>
     </article>
   `).join("");
 }
@@ -410,12 +438,9 @@ function renderSelectList(){
 $("selectArticleSearch").addEventListener("input", renderSelectList);
 $("selectArticleList").addEventListener("click", async e=>{
   const btn = e.target.closest("[data-pick-article]");
-  if(!btn || !selectContext) return;
-  hero[selectContext.key][selectContext.index] = btn.dataset.pickArticle;
-  if(selectContext.key === "featured") hero.featured = hero.featured.filter(Boolean).slice(0,5);
-  await saveHeroOnly();
-  renderHero();
-  $("selectArticleDialog").close();
+  if(!btn) return;
+  e.preventDefault();
+  await window.drkprtyPickArticle(btn.dataset.pickArticle);
 });
 
 $("saveHero").addEventListener("click", async ()=>{await saveHeroOnly(); alert("Configuración Hero guardada.");});
@@ -700,7 +725,10 @@ $("articleForm").addEventListener("submit", async e=>{
     quote: previous?.quote || "",
     createdAt: previous?.createdAt || new Date().toISOString(),
     publishAt:$("articlePublishAt").value,
-    published:$("articlePublished").checked,
+    published: (() => {
+      const publishTime = parseAdminPublishTime($("articlePublishAt").value);
+      return publishTime && publishTime <= Date.now() ? true : $("articlePublished").checked;
+    })(),
     spotifyEmbed:$("articleSpotifyEmbed").value
   };
   const idx = articles.findIndex(a=>a.id===id);
@@ -787,120 +815,23 @@ document.querySelectorAll("[data-close]").forEach(btn=>{
 
 
 
-/* v8: robust admin controls delegation
-   Fixes dynamic buttons even if previous listeners fail after renders or new dialogs. */
-function openArticleSelector(context){
-  selectContext = context;
-  $("selectDialogTitle").textContent = context.key === "rotation" ? "Seleccionar reseña" : (context.isNewSlot ? "Agregar destacada" : "Seleccionar artículo");
-  $("selectArticleSearch").value = "";
-  renderSelectList();
-  $("selectArticleDialog").showModal();
-}
 
-function setupRobustAdminDelegation(){
-  document.addEventListener("click", async (e) => {
-    const closeBtn = e.target.closest("[data-close]");
-    if(closeBtn){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const dialog = $(closeBtn.dataset.close);
-      if(dialog?.close) dialog.close();
-      return;
-    }
-
-    const configBtn = e.target.closest("#githubImageConfig");
-    if(configBtn){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const cfg = getGitHubImageConfig();
-      $("githubOwner").value = cfg.owner;
-      $("githubRepo").value = cfg.repo;
-      $("githubBranch").value = cfg.branch;
-      $("githubUploadPath").value = cfg.uploadPath;
-      $("githubPublicBaseUrl").value = cfg.publicBaseUrl;
-      $("githubToken").value = cfg.token;
-      $("githubDialog").showModal();
-      return;
-    }
-
-    const editArticle = e.target.closest("[data-edit-article]");
-    if(editArticle){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      openArticle(editArticle.dataset.editArticle);
-      return;
-    }
-
-    const addFeatured = e.target.closest("#addFeaturedSlot");
-    if(addFeatured){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      if(hero.autoFeatured || hero.featured.length >= 5) return;
-      openArticleSelector({ key:"featured", index:hero.featured.length, filter:"published", isNewSlot:true });
-      return;
-    }
-
-    const removeFeatured = e.target.closest("[data-remove-featured]");
-    if(removeFeatured){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      if(removeFeatured.disabled || hero.autoFeatured) return;
-      const index = Number(removeFeatured.dataset.removeFeatured);
-      if(hero.featured.length > 3){
-        hero.featured.splice(index, 1);
-        await saveHeroOnly();
-        renderHero();
-      }
-      return;
-    }
-
-    const selectSlot = e.target.closest("[data-select-slot]");
-    if(selectSlot){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      if(selectSlot.dataset.selectSlot === "featured" && hero.autoFeatured) return;
-      openArticleSelector({
-        key: selectSlot.dataset.selectSlot,
-        index: Number(selectSlot.dataset.index),
-        filter: selectSlot.dataset.filter
-      });
-      return;
-    }
-
-    const pickArticle = e.target.closest("[data-pick-article]");
-    if(pickArticle){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      if(!selectContext) return;
-      hero[selectContext.key][selectContext.index] = pickArticle.dataset.pickArticle;
-      if(selectContext.key === "featured") hero.featured = hero.featured.filter(Boolean).slice(0,5);
-      await saveHeroOnly();
-      renderHero();
-      $("selectArticleDialog").close();
-      return;
-    }
-  }, true);
-
-  const githubForm = $("githubForm");
-  if(githubForm && !githubForm.dataset.v8Bound){
-    githubForm.dataset.v8Bound = "true";
-    githubForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      localStorage.setItem("drkprty-github-owner", $("githubOwner").value.trim());
-      localStorage.setItem("drkprty-github-repo", $("githubRepo").value.trim());
-      localStorage.setItem("drkprty-github-branch", $("githubBranch").value.trim() || "main");
-      localStorage.setItem("drkprty-github-upload-path", $("githubUploadPath").value.trim() || "assets/uploads");
-      localStorage.setItem("drkprty-github-public-base-url", $("githubPublicBaseUrl").value.trim());
-      localStorage.setItem("drkprty-github-token", $("githubToken").value.trim());
-      $("githubDialog").close();
-      alert("Configuración de GitHub guardada en este navegador.");
-    });
+/* v9: lightweight fallback delegation for dynamic buttons */
+document.addEventListener("click", async (e) => {
+  const editArticle = e.target.closest("[data-edit-article]");
+  if(editArticle){
+    e.preventDefault();
+    openArticle(editArticle.dataset.editArticle);
+    return;
   }
-}
 
-setupRobustAdminDelegation();
-
-
+  const pickArticle = e.target.closest("[data-pick-article]");
+  if(pickArticle){
+    e.preventDefault();
+    await window.drkprtyPickArticle(pickArticle.dataset.pickArticle);
+    return;
+  }
+});
 $("exportAll").addEventListener("click",()=>{
   download("orbita-content-export.json", {articles, events, hero:{
     featured: hero.autoFeatured ? getAutoFeaturedIds() : hero.featured,

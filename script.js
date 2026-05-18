@@ -19,6 +19,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+
+function truthyPublished(value){
+  return value === true || value === "true" || value === 1 || value === "1";
+}
+
+function falseyPublished(value){
+  return value === false || value === "false" || value === 0 || value === "0";
+}
+
+function parsePublishTime(value){
+  if(!value) return null;
+  if(typeof value === "object" && typeof value.toDate === "function") return value.toDate().getTime();
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) ? time : null;
+}
+
+function isArticlePublic(article){
+  const publishTime = parsePublishTime(article.publishAt);
+  const isDue = !publishTime || publishTime <= Date.now();
+
+  if(publishTime && publishTime > Date.now()) return false;
+  if(falseyPublished(article.published) && !isDue) return false;
+  if(falseyPublished(article.published) && publishTime && isDue) return true;
+
+  return !falseyPublished(article.published) && isDue;
+}
+
+
 function articleTime(a){
   if(a.publishAt) return new Date(a.publishAt).getTime() || 0;
   if(a.createdAt) return new Date(a.createdAt).getTime() || 0;
@@ -32,12 +60,7 @@ async function loadFirebaseContent(){
     const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
 
     window.ORBITA_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
-      .filter(a => {
-        const publishTime = a.publishAt ? new Date(a.publishAt).getTime() : null;
-        const scheduledIsDue = publishTime && publishTime <= Date.now();
-        return a.published !== false || scheduledIsDue;
-      })
-      .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now())
+      .filter(isArticlePublic)
       .sort((a,b) => articleTime(b) - articleTime(a));
 
     const today = new Date();
