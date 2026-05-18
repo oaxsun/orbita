@@ -418,3 +418,21 @@ body.admin-authenticated .login-screen{
   font-weight:900;
   box-shadow:4px 4px 0 #000;
 }
+
+
+/* v4 image upload helper */
+.field-help{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+  margin-top:6px;
+  font-weight:700;
+}
+
+input[type="file"]{
+  border:1px dashed var(--line);
+  padding:14px;
+  background:#080808;
+  color:var(--text);
+}

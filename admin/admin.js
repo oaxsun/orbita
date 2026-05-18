@@ -454,11 +454,57 @@ document.querySelectorAll("[data-article-tab]").forEach(btn=>{
   });
 });
 
+
+function safeFileName(value){
+  return String(value || "image")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9.]+/g,"-")
+    .replace(/(^-|-$)/g,"");
+}
+
+async function uploadArticleImageIfNeeded(articleId){
+  const input = $("articleImageFile");
+  const file = input?.files?.[0];
+  if(!file) return $("articleImage").value;
+
+  const ext = file.name.split(".").pop() || "jpg";
+  const cleanId = safeFileName(articleId);
+  const filePath = `articles/${cleanId}-${Date.now()}.${ext}`;
+  const storageRef = fb.ref(fb.storage, filePath);
+
+  const uploadButton = document.querySelector("#articleForm button[type='submit']");
+  const previousText = uploadButton?.textContent;
+  if(uploadButton){
+    uploadButton.disabled = true;
+    uploadButton.textContent = "Subiendo imagen...";
+  }
+
+  try{
+    await fb.uploadBytes(storageRef, file, {
+      contentType: file.type || "image/jpeg",
+      customMetadata: {
+        articleId: articleId
+      }
+    });
+    const url = await fb.getDownloadURL(storageRef);
+    $("articleImage").value = url;
+    return url;
+  }finally{
+    if(uploadButton){
+      uploadButton.disabled = false;
+      uploadButton.textContent = previousText || "Guardar artículo";
+    }
+  }
+}
+
+
 function openArticle(id=null){
   const a = id ? articles.find(x=>x.id===id) : null;
   $("articleDialogTitle").textContent = a ? "Editar artículo" : "Crear artículo";
   $("articleId").value = a?.id || "";
   $("articleImage").value = a?.image || "";
+  $("articleImageFile").value = "";
   $("articleTitle").value = a?.title || "";
   $("articleExcerpt").value = a?.excerpt || "";
   $("articleBody").value = a?.body?.join("\n\n") || "";
@@ -531,6 +577,15 @@ $("importArticleFile")?.addEventListener("change", async (e) => {
 });
 
 
+
+$("articleImageFile")?.addEventListener("change", () => {
+  const file = $("articleImageFile")?.files?.[0];
+  if(!file) return;
+  const previewUrl = URL.createObjectURL(file);
+  $("articleImage").value = previewUrl;
+});
+
+
 $("createArticle").addEventListener("click",()=>openArticle());
 $("articleList").addEventListener("click",e=>{
   const btn = e.target.closest("[data-edit-article]");
@@ -542,6 +597,8 @@ $("articleForm").addEventListener("submit", async e=>{
   const existingId = $("articleId").value;
   const id = existingId || slugify($("articleTitle").value);
   const previous = articles.find(a=>a.id===id);
+  const imageUrl = await uploadArticleImageIfNeeded(id);
+
   const article = {
     id,
     title:$("articleTitle").value,
@@ -549,7 +606,7 @@ $("articleForm").addEventListener("submit", async e=>{
     date:$("articleDate").value,
     read: previous?.read || "3 MIN DE LECTURA",
     author:$("articleAuthor").value,
-    image:$("articleImage").value,
+    image:imageUrl,
     excerpt:$("articleExcerpt").value,
     tags:$("articleTags").value.split(",").map(t=>t.trim()).filter(Boolean),
     body:$("articleBody").value.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean),
