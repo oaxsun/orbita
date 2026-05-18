@@ -853,3 +853,321 @@ document.addEventListener("click", async (e)=>{
   const pick = e.target.closest("[data-pick-article]");
   if(pick){ e.preventDefault(); await window.drkprtyPickArticle(pick.dataset.pickArticle); return; }
 });
+
+
+
+/* =========================
+   DRKPRTY v12 Admin Fix Layer
+   ========================= */
+
+function v12ParsePublishTime(value){
+  if(!value) return null;
+  if(typeof value === "object" && typeof value.toDate === "function") return value.toDate().getTime();
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) ? time : null;
+}
+
+function v12IsScheduled(article){
+  const t = v12ParsePublishTime(article.publishAt);
+  return !!(t && t > Date.now());
+}
+
+function v12IsPublished(article){
+  if(v12IsScheduled(article)) return false;
+  return article.published === true || article.published === "true";
+}
+
+function v12IsUnpublished(article){
+  return !v12IsPublished(article) && !v12IsScheduled(article);
+}
+
+/* override public admin helpers used by the existing UI */
+isPublished = v12IsPublished;
+
+statusOf = function(article){
+  if(v12IsScheduled(article)) return "scheduled";
+  if(v12IsPublished(article)) return "published";
+  return "draft";
+};
+
+statusLabel = function(article){
+  const s = statusOf(article);
+  if(s === "published") return "Publicado";
+  if(s === "scheduled") return "Programado";
+  return "No publicado";
+};
+
+publishedArticles = function(){
+  return sortedArticles(articles.filter(v12IsPublished));
+};
+
+renderArticles = function(){
+  let list = sortedArticles(articles).filter(a => articleMatches(a, articleSearch));
+
+  if(articleTab === "published") list = list.filter(v12IsPublished);
+  if(articleTab === "unpublished") list = list.filter(v12IsUnpublished);
+  if(articleTab === "scheduled") list = list.filter(v12IsScheduled);
+
+  $("articleList").innerHTML = list.map(a => {
+    const s = statusOf(a);
+    return `
+      <article class="list-item">
+        <img src="${a.image || ""}" alt="">
+        <div>
+          <h4>${a.title || "Sin título"}</h4>
+          <p>${a.excerpt || ""}</p>
+          <span class="pill">${a.category || "NOTICIA"}</span>
+          <span class="plain-status ${s}">${statusLabel(a)}</span>
+        </div>
+        <button type="button" class="primary" data-edit-article="${a.id}">Editar</button>
+      </article>
+    `;
+  }).join("");
+};
+
+function v12EligibleForSelect(article){
+  if(selectContext?.filter === "review") return String(article.category || "").toUpperCase() === "RESEÑA" && v12IsPublished(article);
+  return v12IsPublished(article);
+}
+
+renderSelectList = function(){
+  const q = $("selectArticleSearch").value || "";
+  const list = sortedArticles(articles).filter(v12EligibleForSelect).filter(a => articleMatches(a, q)).slice(0, 10);
+
+  $("selectDialogHint").textContent = q ? "Resultados de búsqueda." : "Últimos 10 artículos creados.";
+  $("selectArticleList").innerHTML = list.map(a => `
+    <article class="list-item">
+      <img src="${a.image || ""}" alt="">
+      <div>
+        <h4>${a.title || "Sin título"}</h4>
+        <p>${a.excerpt || ""}</p>
+        <span class="pill">${a.category || "NOTICIA"}</span>
+      </div>
+      <button type="button" class="primary" data-pick-article="${a.id}">Elegir</button>
+    </article>
+  `).join("");
+};
+
+renderSlotList = function(boxId, key, count, filterFn){
+  const box = $(boxId);
+  if(!box) return;
+  box.innerHTML = "";
+
+  const slotCount = key === "featured" ? Math.max(3, count || 0) : count;
+
+  for(let i = 0; i < slotCount; i++){
+    const a = getArticle(hero[key]?.[i]);
+    const canRemove = key === "featured" && hero.featured.length > 3 && !hero.autoFeatured;
+    const card = document.createElement("article");
+    card.className = "slot-card";
+    if(key === "featured"){
+      card.draggable = !hero.autoFeatured;
+      card.dataset.featuredIndex = i;
+    }
+
+    card.innerHTML = `
+      <strong>${String(i + 1).padStart(2,"0")}</strong>
+      <div>
+        <h4>${a ? a.title : "Sin seleccionar"}</h4>
+        <p>${a ? `${a.category} · ${a.date}` : "Selecciona una entrada"}</p>
+      </div>
+      <button type="button" class="primary" data-select-slot="${key}" data-index="${i}" data-filter="${filterFn || ""}" ${key === "featured" && hero.autoFeatured ? "disabled" : ""}>Seleccionar</button>
+      ${key === "featured" ? `<button type="button" class="slot-remove" data-remove-featured="${i}" ${canRemove ? "" : "disabled"} title="${canRemove ? "Eliminar de destacadas" : "Mínimo 3 destacadas"}">×</button>` : ""}
+    `;
+    box.appendChild(card);
+  }
+};
+
+renderHero = function(){
+  syncAutoFeatured();
+
+  $("heroAutoFeatured").checked = !!hero.autoFeatured;
+  renderSlotList("heroFeatured", "featured", hero.featured.length, "published");
+  renderSlotList("heroRotation", "rotation", 5, "review");
+
+  $("addFeaturedSlot").disabled = hero.autoFeatured || hero.featured.length >= 5;
+  $("addFeaturedSlot").textContent = hero.featured.length >= 5 ? "Máximo 5 destacadas" : "Agregar destacada";
+
+  const auto = publishedArticles().slice(0, 10);
+  $("heroTopicsAuto").innerHTML = auto.map((a, i) => `
+    <article class="list-item">
+      <img src="${a.image || ""}" alt="">
+      <div>
+        <h4>${String(i + 1).padStart(2,"0")} · ${a.title || "Sin título"}</h4>
+        <p>${a.excerpt || ""}</p>
+        <span class="pill">${a.category || "NOTICIA"}</span>
+      </div>
+    </article>
+  `).join("");
+};
+
+function v12OpenSelector(context){
+  selectContext = context;
+  $("selectDialogTitle").textContent = context.key === "rotation" ? "Seleccionar reseña" : (context.isNewSlot ? "Agregar destacada" : "Seleccionar artículo");
+  $("selectArticleSearch").value = "";
+  renderSelectList();
+  $("selectArticleDialog").showModal();
+}
+
+async function v12PickArticle(articleId){
+  if(!selectContext) return;
+  hero[selectContext.key][selectContext.index] = articleId;
+  if(selectContext.key === "featured") hero.featured = hero.featured.filter(Boolean).slice(0, 5);
+  await saveHeroOnly();
+  renderHero();
+  $("selectArticleDialog").close();
+}
+
+/* Fix manual save/unpublish using capture so the old submit handler cannot override it. */
+const v12ArticleForm = $("articleForm");
+if(v12ArticleForm && !v12ArticleForm.dataset.v12Bound){
+  v12ArticleForm.dataset.v12Bound = "true";
+  v12ArticleForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const existingId = $("articleId").value;
+    const id = existingId || slugify($("articleTitle").value);
+    const previous = articles.find(a => a.id === id);
+    const imageUrl = await uploadArticleImageIfNeeded(id);
+    const publishTime = v12ParsePublishTime($("articlePublishAt").value);
+
+    const article = {
+      id,
+      title: $("articleTitle").value,
+      category: $("articleCategory").value,
+      date: $("articleDate").value,
+      read: previous?.read || "3 MIN DE LECTURA",
+      author: $("articleAuthor").value,
+      image: imageUrl,
+      excerpt: $("articleExcerpt").value,
+      tags: $("articleTags").value.split(",").map(t => t.trim()).filter(Boolean),
+      body: $("articleBody").value.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean),
+      quote: previous?.quote || "",
+      createdAt: previous?.createdAt || new Date().toISOString(),
+      publishAt: $("articlePublishAt").value,
+      published: publishTime && publishTime > Date.now() ? "scheduled" : $("articlePublished").checked,
+      spotifyEmbed: $("articleSpotifyEmbed").value
+    };
+
+    const idx = articles.findIndex(a => a.id === id);
+    if(idx >= 0) articles[idx] = article;
+    else articles.unshift(article);
+
+    await saveArticleDoc(article);
+    await saveHeroOnly();
+    renderAll();
+    $("articleDialog").close();
+  }, true);
+}
+
+/* Fix hero buttons + article edit with one clean delegated handler. */
+if(!document.body.dataset.v12AdminClicks){
+  document.body.dataset.v12AdminClicks = "true";
+  document.addEventListener("click", async (e) => {
+    const edit = e.target.closest("[data-edit-article]");
+    if(edit){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openArticle(edit.dataset.editArticle);
+      return;
+    }
+
+    const add = e.target.closest("#addFeaturedSlot");
+    if(add){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(hero.autoFeatured || hero.featured.length >= 5) return;
+      v12OpenSelector({ key:"featured", index:hero.featured.length, filter:"published", isNewSlot:true });
+      return;
+    }
+
+    const remove = e.target.closest("[data-remove-featured]");
+    if(remove){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(remove.disabled || hero.autoFeatured) return;
+      const index = Number(remove.dataset.removeFeatured);
+      if(hero.featured.length > 3){
+        hero.featured.splice(index, 1);
+        await saveHeroOnly();
+        renderHero();
+      }
+      return;
+    }
+
+    const select = e.target.closest("[data-select-slot]");
+    if(select){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(select.disabled) return;
+      v12OpenSelector({
+        key: select.dataset.selectSlot,
+        index: Number(select.dataset.index),
+        filter: select.dataset.filter
+      });
+      return;
+    }
+
+    const pick = e.target.closest("[data-pick-article]");
+    if(pick){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      await v12PickArticle(pick.dataset.pickArticle);
+      return;
+    }
+  }, true);
+}
+
+/* Keep drag and drop reliable without changing old listeners. */
+if($("heroFeatured") && !$("heroFeatured").dataset.v12Drag){
+  $("heroFeatured").dataset.v12Drag = "true";
+  let v12DragIndex = null;
+
+  $("heroFeatured").addEventListener("dragstart", e => {
+    const card = e.target.closest("[data-featured-index]");
+    if(!card || hero.autoFeatured) return;
+    v12DragIndex = Number(card.dataset.featuredIndex);
+    card.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+  }, true);
+
+  $("heroFeatured").addEventListener("dragover", e => {
+    const card = e.target.closest("[data-featured-index]");
+    if(!card || v12DragIndex === null || hero.autoFeatured) return;
+    e.preventDefault();
+    document.querySelectorAll(".slot-card").forEach(c => c.classList.remove("drag-over"));
+    card.classList.add("drag-over");
+  }, true);
+
+  $("heroFeatured").addEventListener("drop", async e => {
+    const card = e.target.closest("[data-featured-index]");
+    if(!card || v12DragIndex === null || hero.autoFeatured) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const targetIndex = Number(card.dataset.featuredIndex);
+    if(targetIndex !== v12DragIndex){
+      const [moved] = hero.featured.splice(v12DragIndex, 1);
+      hero.featured.splice(targetIndex, 0, moved);
+      await saveHeroOnly();
+      renderHero();
+    }
+    v12DragIndex = null;
+  }, true);
+
+  $("heroFeatured").addEventListener("dragend", () => {
+    v12DragIndex = null;
+    document.querySelectorAll(".slot-card").forEach(c => c.classList.remove("dragging", "drag-over"));
+  }, true);
+}
+
+/* Re-render once with the corrected functions after login/load completes. */
+setTimeout(() => {
+  try{
+    if(isReady){
+      renderAll();
+    }
+  }catch(err){
+    console.warn("DRKPRTY v12 delayed render skipped", err);
+  }
+}, 500);
