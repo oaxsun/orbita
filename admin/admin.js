@@ -460,7 +460,7 @@ function openArticle(id=null){
   $("articleExcerpt").value = a?.excerpt || "";
   $("articleBody").value = a?.body?.join("\n\n") || "";
   $("articleSpotifyEmbed").value = a?.spotifyEmbed || "";
-  $("articleAuthor").value = a?.author || "DRKPRTY";
+  $("articleAuthor").value = a?.author || "ÓRBITA";
   $("articleDate").value = a?.date || "";
   $("articleTags").value = a?.tags?.join(", ") || "";
   $("articleCategory").value = a?.category || "NOTICIA";
@@ -480,7 +480,7 @@ function normalizeImportedArticle(raw){
     category: (raw.category || raw.categoria || "NOTICIA").toUpperCase(),
     date: raw.date || raw.fecha || "",
     read: raw.read || "3 MIN DE LECTURA",
-    author: raw.author || raw.autor || "DRKPRTY",
+    author: raw.author || raw.autor || "ÓRBITA",
     image: raw.image || raw.imagen || "",
     excerpt: raw.excerpt || raw.preview || raw.previewText || raw["preview text"] || "",
     tags: Array.isArray(raw.tags || raw.hashtags)

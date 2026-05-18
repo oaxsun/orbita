@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — DRKPRTY</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="logo">
+      <img class="brand-eye" src="assets/drkprty-logo.png" alt="DRKPRTY">
+      <div>
+        <h1>DRKPRTY</h1>
+        <p>MUSIC · CULTURE · NIGHT SIGNALS</p>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="news.html">News</a>
+      <a href="news.html?tag=%23RESEÑAS#tags">Reviews</a>
+      <a href="news.html?tag=%23ENTREVISTAS#tags">Interviews</a>
+      <a href="about.html">About</a>
+    </nav>
+
+    <div class="actions">
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema">◐</button>
+      <button class="menu-btn" onclick="toggleMenu()">MENU</button>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-header">
+      <div>
+        <p>MENU</p>
+        <h2>DRKPRTY</h2>
+      </div>
+      <button onclick="toggleMenu()">✕</button>
+    </div>
+
+    <div class="overlay-links">
+      <a href="index.html">HOME →</a>
+      <a href="news.html">NEWS →</a>
+      <a href="news.html?tag=%23RESEÑAS#tags">REVIEWS →</a>
+      <a href="news.html?tag=%23ENTREVISTAS#tags">INTERVIEWS →</a>
+      <a href="about.html">ABOUT →</a>
+    </div>
+  </div>
+
+  <main class="about-page">
+    <section class="about-hero">
+      <div>
+        <p class="tiny">ABOUT · DRKPRTY</p>
+        <h1>Music, culture and signals from the dark side of the internet.</h1>
+      </div>
+      <img src="assets/drkprty-logo.png" alt="DRKPRTY">
+    </section>
+
+    <section class="about-grid">
+      <article class="about-card">
+        <span>01</span>
+        <h2>Quiénes somos</h2>
+        <p>DRKPRTY es un medio digital independiente dedicado a seguir las señales que conectan música, cultura visual, internet, escenas emergentes, festivales y vida nocturna.</p>
+        <p>No buscamos cubrirlo todo. Buscamos detectar lo que se mueve, lo que suena distinto y lo que empieza a formar conversación antes de volverse obvio.</p>
+      </article>
+
+      <article class="about-card">
+        <span>02</span>
+        <h2>Misión</h2>
+        <p>Crear una plataforma editorial con identidad propia para descubrir lanzamientos, reseñas, entrevistas, conciertos, artistas y fenómenos culturales que viven entre lo alternativo, lo pop y lo digital.</p>
+        <p>Queremos contar la música como cultura viva: no solo como noticia, sino como estética, comunidad, archivo, escena y experiencia.</p>
+      </article>
+
+      <article class="about-card">
+        <span>03</span>
+        <h2>Visión</h2>
+        <p>Convertirnos en un punto de encuentro para quienes escuchan, crean, escriben, fotografían, mezclan, programan, producen y viven la música desde una sensibilidad contemporánea.</p>
+        <p>DRKPRTY quiere ser un radar cultural: una señal nocturna para encontrar lo próximo.</p>
+      </article>
+
+      <article class="about-card submit-card">
+        <span>04</span>
+        <h2>Publica con nosotros</h2>
+        <p>¿Tienes una reseña, crónica, entrevista, fotoensayo, playlist, columna o texto sobre una escena local? Queremos leerlo.</p>
+        <p>Envía tu propuesta con título, texto breve, autoría, links de referencia e imágenes disponibles. Si encaja con la línea editorial, podrá publicarse en DRKPRTY.</p>
+        <a class="about-submit" href="mailto:hola@drkprty.com?subject=Propuesta editorial para DRKPRTY">MANDAR ARTÍCULO →</a>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>↓↓↓ STAY LOUD AFTER DARK ✦ ↓↓↓</p>
+    <h2>DRKPRTY</h2>
+  </footer>
+
+  <script src="data.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

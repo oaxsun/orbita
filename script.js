@@ -9,9 +9,9 @@ import {
 
 const firebaseConfig = {
   apiKey: "AIzaSyBF7dI6cLaec1hMO6sRYyKTbgmhptq0OEM",
-  authDomain: "drkprty-727cd.firebaseapp.com",
-  projectId: "drkprty-727cd",
-  storageBucket: "drkprty-727cd.firebasestorage.app",
+  authDomain: "orbita-727cd.firebaseapp.com",
+  projectId: "orbita-727cd",
+  storageBucket: "orbita-727cd.firebasestorage.app",
   messagingSenderId: "823174769372",
   appId: "1:823174769372:web:c0b62f90917c035dbb6219"
 };
@@ -31,7 +31,7 @@ async function loadFirebaseContent(){
     const eventsSnap = await getDocs(collection(db, "events"));
     const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
 
-    window.DRKPRTY_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+    window.ORBITA_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
       .filter(a => a.published !== false)
       .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now())
       .sort((a,b) => articleTime(b) - articleTime(a));
@@ -39,36 +39,36 @@ async function loadFirebaseContent(){
     const today = new Date();
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
 
-    window.DRKPRTY_EVENTS = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+    window.ORBITA_EVENTS = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
       .filter(e => !e.sortDate || Number(e.sortDate) >= Number(todayStart))
       .sort((a,b) => Number(a.sortDate || 0) - Number(b.sortDate || 0));
 
-    window.DRKPRTY_HERO = heroSnap.exists() ? heroSnap.data() : null;
+    window.ORBITA_HERO = heroSnap.exists() ? heroSnap.data() : null;
 
     console.info("DRKPRTY Firebase loaded", {
-      articles: window.DRKPRTY_ARTICLES.length,
-      events: window.DRKPRTY_EVENTS.length,
-      hero: window.DRKPRTY_HERO
+      articles: window.ORBITA_ARTICLES.length,
+      events: window.ORBITA_EVENTS.length,
+      hero: window.ORBITA_HERO
     });
   }catch(err){
-    window.DRKPRTY_ARTICLES = [];
-    window.DRKPRTY_EVENTS = [];
-    window.DRKPRTY_HERO = null;
+    window.ORBITA_ARTICLES = [];
+    window.ORBITA_EVENTS = [];
+    window.ORBITA_HERO = null;
     console.error("DRKPRTY Firebase failed", err);
   }
 }
 
 
 function getArticles(){
-  return Array.isArray(window.DRKPRTY_ARTICLES) ? window.DRKPRTY_ARTICLES : [];
+  return Array.isArray(window.ORBITA_ARTICLES) ? window.ORBITA_ARTICLES : [];
 }
 
 function getEvents(){
-  return Array.isArray(window.DRKPRTY_EVENTS) ? window.DRKPRTY_EVENTS : [];
+  return Array.isArray(window.ORBITA_EVENTS) ? window.ORBITA_EVENTS : [];
 }
 
 function getHeroConfig(){
-  return window.DRKPRTY_HERO || null;
+  return window.ORBITA_HERO || null;
 }
 
 const TAGS = [
@@ -510,14 +510,14 @@ function showCopyToast(message){
   toast.textContent = message;
   toast.classList.add("active");
 
-  clearTimeout(window.__drkprtyCopyToastTimer);
-  window.__drkprtyCopyToastTimer = setTimeout(() => {
+  clearTimeout(window.__orbitaCopyToastTimer);
+  window.__orbitaCopyToastTimer = setTimeout(() => {
     toast.classList.remove("active");
   }, 1800);
 }
 
 
-async function initDRKPRTYSite(){
+async function initOrbitaSite(){
   setupTheme();
 
   await loadFirebaseContent();
@@ -539,4 +539,4 @@ async function initDRKPRTYSite(){
   setupShareCopy();
 }
 
-initDRKPRTYSite();
+initOrbitaSite();
