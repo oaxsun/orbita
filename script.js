@@ -338,13 +338,17 @@ function renderArticles(){
   }
 
   if(!isNewsPage){
-    const topics = getHeroConfig()?.topics || [];
-    if(topics.length){
-      filtered = topics.map(id => articles.find(a => a.id === id)).filter(Boolean);
-    }else{
-      filtered = filtered.slice(0, 10);
-    }
+    // New Topics on the main page must always show the latest published articles.
+    // Do not use siteConfig.hero.topics because that document can keep stale IDs.
+    filtered = articles.slice(0, 10);
   }
+
+  console.info("DRKPRTY renderArticles", {
+    isNewsPage,
+    totalArticles: articles.length,
+    renderedArticles: filtered.length,
+    firstIds: filtered.slice(0,5).map(a => a.id)
+  });
 
   grid.innerHTML = filtered.map((article, index) => `
     <a class="topic-card article-link news-style-card ${isNewsPage ? "archive-card" : ""}" href="article.html?id=${article.id}" style="--cardimg:url('${article.image || ""}')">
@@ -467,7 +471,18 @@ function renderFeatured(){
   const articles = getArticles();
   const hero = getHeroConfig();
   const featuredIds = hero?.featured || [];
-  const selected = featuredIds.map(id => articles.find(a => a.id === id)).filter(Boolean);
+  let selected = featuredIds.map(id => articles.find(a => a.id === id)).filter(Boolean);
+
+  // If the hero is automatic, empty, or has stale IDs, keep the main page alive with the latest 3.
+  if(hero?.autoFeatured || selected.length < Math.min(3, articles.length)){
+    selected = articles.slice(0, 3);
+  }
+
+  console.info("DRKPRTY renderFeatured", {
+    totalArticles: articles.length,
+    selected: selected.map(a => a.id),
+    autoFeatured: !!hero?.autoFeatured
+  });
 
   if(!selected.length){
     track.innerHTML = `
@@ -491,7 +506,6 @@ function renderFeatured(){
     </a>
   `).join("");
 }
-
 
 function getDailySeed(){
   const d = new Date();
@@ -801,6 +815,7 @@ async function initOrbitaSite(){
 
   await loadFirebaseContent();
 
+  console.info("DRKPRTY V11 main latest fix");
   console.info("DRKPRTY render data", {
     articles:getArticles().length,
     events:getEvents().length,
