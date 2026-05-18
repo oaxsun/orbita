@@ -529,3 +529,34 @@ dialog::backdrop{
 .plain-status.draft{
   color:#ff7a7a;
 }
+
+
+/* v13 clean admin */
+.slot-card[draggable="true"]{
+  cursor:grab;
+  user-select:none;
+}
+
+.slot-card.dragging{
+  opacity:.55;
+  cursor:grabbing;
+}
+
+.slot-card.drag-over{
+  outline:3px solid var(--accent);
+  outline-offset:4px;
+}
+
+#selectArticleList{
+  max-height:58vh;
+  overflow:auto;
+  padding-right:6px;
+}
+
+.plain-status.scheduled{
+  color:#ffcc00;
+}
+
+.plain-status.draft{
+  color:#ff7a7a;
+}

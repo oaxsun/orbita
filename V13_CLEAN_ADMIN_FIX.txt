@@ -1,0 +1,21 @@
+DRKPRTY v13 Clean Admin Fix
+
+Error encontrado:
+- El admin.js estaba muy parchado desde el rebrand. El flujo de Hero quedó mezclado con handlers viejos y nuevos.
+- Algunas versiones intentaban usar funciones globales como drkprtyAddFeatured/drkprtyPickArticle que no siempre existían en el orden correcto.
+- También había lógica antigua que consideraba publicado cualquier artículo con publishAt vencido, aunque lo despublicaras manualmente.
+
+Solución:
+- Reescribí admin/admin.js limpio.
+- Hero/destacadas usa un solo sistema de eventos:
+  - Agregar destacada
+  - Seleccionar destacada
+  - Elegir artículo
+  - Quitar destacada
+  - Reordenar drag & drop
+- Publicación:
+  - Publicadas: published true
+  - Programadas: publishAt futuro
+  - No publicadas: ni publicadas ni programadas
+  - Despublicar manualmente ahora sí se guarda como false
+- admin/index.html ahora carga admin.js?v=13 para evitar caché.
