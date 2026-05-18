@@ -63,6 +63,118 @@ async function loadFirebaseContent(){
 }
 
 
+
+function setMetaAttr(selector, attr, value){
+  let el = document.querySelector(selector);
+  if(!el){
+    el = document.createElement("meta");
+    if(selector.includes("property=")){
+      const prop = selector.match(/property="([^"]+)"/)?.[1];
+      if(prop) el.setAttribute("property", prop);
+    }else{
+      const name = selector.match(/name="([^"]+)"/)?.[1];
+      if(name) el.setAttribute("name", name);
+    }
+    document.head.appendChild(el);
+  }
+  el.setAttribute(attr, value || "");
+}
+
+function setCanonical(url){
+  let link = document.querySelector('link[rel="canonical"]');
+  if(!link){
+    link = document.createElement("link");
+    link.setAttribute("rel", "canonical");
+    document.head.appendChild(link);
+  }
+  link.setAttribute("href", url);
+}
+
+function setDynamicSEO(article){
+  if(!article) return;
+
+  const url = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(article.id)}`;
+  const title = `${article.title} — DRKPRTY`;
+  const description = article.excerpt || "Lee la nota completa en DRKPRTY.";
+  const image = article.image || `${window.location.origin}/orbita/assets/drkprty-logo.png`;
+
+  document.title = title;
+  setCanonical(url);
+
+  setMetaAttr('meta[name="description"]', "content", description);
+  setMetaAttr('meta[property="og:type"]', "content", "article");
+  setMetaAttr('meta[property="og:title"]', "content", title);
+  setMetaAttr('meta[property="og:description"]', "content", description);
+  setMetaAttr('meta[property="og:url"]', "content", url);
+  setMetaAttr('meta[property="og:image"]', "content", image);
+  setMetaAttr('meta[property="og:image:alt"]', "content", article.title);
+  setMetaAttr('meta[name="twitter:card"]', "content", "summary_large_image");
+  setMetaAttr('meta[name="twitter:title"]', "content", title);
+  setMetaAttr('meta[name="twitter:description"]', "content", description);
+  setMetaAttr('meta[name="twitter:image"]', "content", image);
+
+  const oldSchema = document.getElementById("drkprty-article-schema");
+  if(oldSchema) oldSchema.remove();
+
+  const schema = document.createElement("script");
+  schema.type = "application/ld+json";
+  schema.id = "drkprty-article-schema";
+  schema.textContent = JSON.stringify({
+    "@context":"https://schema.org",
+    "@type":"NewsArticle",
+    "headline":article.title,
+    "description":description,
+    "image":image ? [image] : [],
+    "datePublished":article.publishAt || article.createdAt || new Date().toISOString(),
+    "dateModified":article.updatedAt || article.createdAt || article.publishAt || new Date().toISOString(),
+    "author":{"@type":"Person","name":article.author || "DRKPRTY"},
+    "publisher":{
+      "@type":"Organization",
+      "name":"DRKPRTY",
+      "logo":{
+        "@type":"ImageObject",
+        "url":`${window.location.origin}/orbita/assets/drkprty-logo.png`
+      }
+    },
+    "mainEntityOfPage":{"@type":"WebPage","@id":url}
+  });
+  document.head.appendChild(schema);
+}
+
+function setListingSEO(){
+  const params = new URLSearchParams(window.location.search);
+  const category = params.get("category");
+  const tag = params.get("tag");
+
+  if(!window.location.pathname.includes("news.html")) return;
+
+  let title = "News — DRKPRTY";
+  let description = "Todas las noticias de música, cultura, lanzamientos, festivales y escenas emergentes en DRKPRTY.";
+
+  if(category === "RESEÑA"){
+    title = "Reviews — DRKPRTY";
+    description = "Reseñas de discos, canciones, lanzamientos y cultura musical en DRKPRTY.";
+  }
+
+  if(category === "ENTREVISTA"){
+    title = "Interviews — DRKPRTY";
+    description = "Entrevistas con artistas, escenas emergentes y voces de la cultura musical en DRKPRTY.";
+  }
+
+  if(tag){
+    title = `${tag} — DRKPRTY`;
+    description = `Archivo de artículos relacionados con ${tag} en DRKPRTY.`;
+  }
+
+  document.title = title;
+  setMetaAttr('meta[name="description"]', "content", description);
+  setMetaAttr('meta[property="og:title"]', "content", title);
+  setMetaAttr('meta[property="og:description"]', "content", description);
+  setMetaAttr('meta[name="twitter:title"]', "content", title);
+  setMetaAttr('meta[name="twitter:description"]', "content", description);
+}
+
+
 function getArticles(){
   return Array.isArray(window.ORBITA_ARTICLES) ? window.ORBITA_ARTICLES : [];
 }
@@ -123,6 +235,10 @@ function getCurrentCategory(){
   return new URLSearchParams(window.location.search).get("category");
 }
 
+function getCurrentSearchQuery(){
+  return new URLSearchParams(window.location.search).get("search");
+}
+
 function getArchiveTitle(){
   const category = getCurrentCategory();
   if(category === "RESEÑA") return "TODAS LAS REVIEWS";
@@ -166,8 +282,13 @@ function renderArticles(){
   const isNewsPage = window.location.pathname.includes("news.html");
 
   let filtered = articles;
+  const search = getCurrentSearchQuery();
   if(current) filtered = filtered.filter(a => Array.isArray(a.tags) && a.tags.includes(current));
   if(category) filtered = filtered.filter(a => String(a.category || "").toUpperCase() === category.toUpperCase());
+  if(search){
+    const q = search.toLowerCase();
+    filtered = filtered.filter(a => `${a.title || ""} ${a.excerpt || ""} ${a.category || ""} ${(a.tags || []).join(" ")}`.toLowerCase().includes(q));
+  }
 
   if(!isNewsPage){
     const topics = getHeroConfig()?.topics || [];
@@ -243,7 +364,7 @@ function renderArticlePage(){
     return;
   }
 
-  document.title = `${article.title} — DRKPRTY`;
+  setDynamicSEO(article);
 
   const related = articles.filter(a => a.id !== article.id).slice(0,6);
 
@@ -565,6 +686,69 @@ function setupScrollTopButton(){
 }
 
 
+
+function setupCookieBanner(){
+  if(localStorage.getItem("drkprty-cookies-ok") === "true") return;
+
+  const banner = document.createElement("div");
+  banner.className = "cookie-banner";
+  banner.innerHTML = `
+    <div>
+      <strong>COOKIES</strong>
+      <p>Usamos cookies para mejorar la experiencia, medir tráfico y preparar futuras funciones editoriales.</p>
+    </div>
+    <button type="button" id="acceptCookiesBtn">ACEPTAR →</button>
+  `;
+
+  document.body.appendChild(banner);
+  requestAnimationFrame(() => banner.classList.add("active"));
+
+  document.getElementById("acceptCookiesBtn")?.addEventListener("click", () => {
+    localStorage.setItem("drkprty-cookies-ok", "true");
+    banner.classList.remove("active");
+    setTimeout(() => banner.remove(), 260);
+  });
+}
+
+function setupNewsletterFakeSubscribe(){
+  document.querySelectorAll("form").forEach(form => {
+    const email = form.querySelector('input[type="email"]');
+    const button = form.querySelector("button");
+    if(!email || !button) return;
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const value = email.value.trim();
+      if(!value || !value.includes("@")){
+        showNewsletterToast("ESCRIBE UN EMAIL VÁLIDO");
+        return;
+      }
+
+      email.value = "";
+      showNewsletterToast("TE SUSCRIBISTE A DRKPRTY");
+    });
+  });
+}
+
+function showNewsletterToast(message){
+  let toast = document.querySelector(".newsletter-toast");
+  if(!toast){
+    toast = document.createElement("div");
+    toast.className = "newsletter-toast";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add("active");
+
+  clearTimeout(window.__drkprtyNewsletterTimer);
+  window.__drkprtyNewsletterTimer = setTimeout(() => {
+    toast.classList.remove("active");
+  }, 2200);
+}
+
+
 async function initOrbitaSite(){
   setupTheme();
 
@@ -576,6 +760,7 @@ async function initOrbitaSite(){
     hero:getHeroConfig()
   });
 
+  setListingSEO();
   renderHashtags();
   updateArchiveTitle();
   renderFeatured();
@@ -587,6 +772,8 @@ async function initOrbitaSite(){
   setupRotationSelector();
   setupShareCopy();
   setupScrollTopButton();
+  setupCookieBanner();
+  setupNewsletterFakeSubscribe();
 }
 
 initOrbitaSite();

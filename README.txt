@@ -297,3 +297,8 @@ v40:
 - Modo oscuro: texto de Destacadas en blanco para mejor contraste.
 - Botón compartir en artículo copia el link actual.
 - Se muestra mensaje LINK COPIADO.
+
+
+DRKPRTY v6:
+- Banner de cookies con localStorage.
+- Newsletter simula suscripción y muestra mensaje de confirmación.

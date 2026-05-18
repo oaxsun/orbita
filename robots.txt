@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://oaxsun.github.io/orbita/sitemap.xml

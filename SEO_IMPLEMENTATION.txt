@@ -1,0 +1,26 @@
+# DRKPRTY SEO Implementado
+
+Incluye:
+- Meta description por página
+- Canonical URL
+- Open Graph para Facebook/WhatsApp
+- Twitter/X summary_large_image cards
+- JSON-LD WebSite
+- JSON-LD NewsArticle dinámico en article.html
+- robots.txt
+- sitemap.xml
+- manifest PWA básico
+- SEO dinámico por categoría: News, Reviews, Interviews
+- SearchAction con news.html?search=
+
+Importante:
+- Site URL configurada como: https://oaxsun.github.io/orbita
+- Cuando cambies dominio a drkprty.com, hay que reemplazar esta URL en:
+  - sitemap.xml
+  - robots.txt
+  - meta canonical de los HTML
+  - script.js fallback logo URL
+
+Nota técnica:
+GitHub Pages es estático. Los meta tags dinámicos de article.html se actualizan en el navegador.
+Para SEO perfecto de cada nota individual en Google/Facebook, el paso ideal futuro es prerender/SSG por artículo o Cloudflare Worker.

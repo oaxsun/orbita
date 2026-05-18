@@ -1,0 +1,16 @@
+{
+  "name": "DRKPRTY",
+  "short_name": "DRKPRTY",
+  "description": "DRKPRTY es un medio digital de música, cultura, reseñas, entrevistas, festivales y escenas emergentes.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#ff4fd8",
+  "icons": [
+    {
+      "src": "assets/drkprty-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
