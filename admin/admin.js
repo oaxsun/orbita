@@ -310,8 +310,10 @@ $("heroAutoFeatured").addEventListener("change", async e=>{
   if(hero.autoFeatured){
     hero.featured = getAutoFeaturedIds();
   }
+  const previousScroll = window.scrollY;
   await saveHeroOnly();
   renderHero();
+  window.scrollTo({ top: previousScroll, behavior: "instant" });
 });
 
 $("addFeaturedSlot").addEventListener("click", ()=>{
@@ -463,33 +465,79 @@ function safeFileName(value){
     .replace(/(^-|-$)/g,"");
 }
 
+function getGitHubImageConfig(){
+  return {
+    owner: localStorage.getItem("drkprty-github-owner") || "oaxsun",
+    repo: localStorage.getItem("drkprty-github-repo") || "orbita",
+    branch: localStorage.getItem("drkprty-github-branch") || "main",
+    uploadPath: localStorage.getItem("drkprty-github-upload-path") || "assets/uploads",
+    publicBaseUrl: localStorage.getItem("drkprty-github-public-base-url") || "https://oaxsun.github.io/orbita",
+    token: localStorage.getItem("drkprty-github-token") || ""
+  };
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      resolve(result.split(",")[1] || "");
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function uploadArticleImageIfNeeded(articleId){
   const input = $("articleImageFile");
   const file = input?.files?.[0];
   if(!file) return $("articleImage").value;
 
-  const ext = file.name.split(".").pop() || "jpg";
+  const cfg = getGitHubImageConfig();
+  if(!cfg.token){
+    alert("Primero configura GitHub en el botón 'Configurar GitHub' del panel lateral.");
+    throw new Error("Missing GitHub token");
+  }
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
   const cleanId = safeFileName(articleId);
-  const filePath = `articles/${cleanId}-${Date.now()}.${ext}`;
-  const storageRef = fb.ref(fb.storage, filePath);
+  const fileName = `${cleanId}-${Date.now()}.${ext}`;
+  const cleanPath = cfg.uploadPath.replace(/^\/|\/$/g, "");
+  const repoPath = `${cleanPath}/${fileName}`;
+  const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${repoPath}`;
+  const publicUrl = `${cfg.publicBaseUrl.replace(/\/$/,"")}/${repoPath}`;
 
   const uploadButton = document.querySelector("#articleForm button[type='submit']");
   const previousText = uploadButton?.textContent;
   if(uploadButton){
     uploadButton.disabled = true;
-    uploadButton.textContent = "Subiendo imagen...";
+    uploadButton.textContent = "Subiendo a GitHub...";
   }
 
   try{
-    await fb.uploadBytes(storageRef, file, {
-      contentType: file.type || "image/jpeg",
-      customMetadata: {
-        articleId: articleId
-      }
+    const content = await fileToBase64(file);
+    const res = await fetch(apiUrl, {
+      method:"PUT",
+      headers:{
+        "Authorization":`Bearer ${cfg.token}`,
+        "Accept":"application/vnd.github+json",
+        "X-GitHub-Api-Version":"2022-11-28",
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        message:`Upload article image: ${fileName}`,
+        content,
+        branch:cfg.branch
+      })
     });
-    const url = await fb.getDownloadURL(storageRef);
-    $("articleImage").value = url;
-    return url;
+
+    if(!res.ok){
+      const detail = await res.text();
+      throw new Error(`GitHub upload failed: ${res.status} ${detail}`);
+    }
+
+    $("articleImage").value = publicUrl;
+    return publicUrl;
   }finally{
     if(uploadButton){
       uploadButton.disabled = false;
@@ -504,7 +552,7 @@ function openArticle(id=null){
   $("articleDialogTitle").textContent = a ? "Editar artículo" : "Crear artículo";
   $("articleId").value = a?.id || "";
   $("articleImage").value = a?.image || "";
-  $("articleImageFile").value = "";
+  if($("articleImageFile")) $("articleImageFile").value = "";
   $("articleTitle").value = a?.title || "";
   $("articleExcerpt").value = a?.excerpt || "";
   $("articleBody").value = a?.body?.join("\n\n") || "";
@@ -584,6 +632,45 @@ $("articleImageFile")?.addEventListener("change", () => {
   const previewUrl = URL.createObjectURL(file);
   $("articleImage").value = previewUrl;
 });
+
+
+
+$("githubImageConfig")?.addEventListener("click", () => {
+  const cfg = getGitHubImageConfig();
+  $("githubOwner").value = cfg.owner;
+  $("githubRepo").value = cfg.repo;
+  $("githubBranch").value = cfg.branch;
+  $("githubUploadPath").value = cfg.uploadPath;
+  $("githubPublicBaseUrl").value = cfg.publicBaseUrl;
+  $("githubToken").value = cfg.token;
+  $("githubDialog").showModal();
+});
+
+$("githubForm")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  localStorage.setItem("drkprty-github-owner", $("githubOwner").value.trim());
+  localStorage.setItem("drkprty-github-repo", $("githubRepo").value.trim());
+  localStorage.setItem("drkprty-github-branch", $("githubBranch").value.trim() || "main");
+  localStorage.setItem("drkprty-github-upload-path", $("githubUploadPath").value.trim() || "assets/uploads");
+  localStorage.setItem("drkprty-github-public-base-url", $("githubPublicBaseUrl").value.trim());
+  localStorage.setItem("drkprty-github-token", $("githubToken").value.trim());
+  $("githubDialog").close();
+  alert("Configuración de GitHub guardada en este navegador.");
+});
+
+
+
+function setupImagePreviewInput(){
+  const input = $("articleImageFile");
+  if(!input || input.dataset.v8Bound) return;
+  input.dataset.v8Bound = "true";
+  input.addEventListener("change", () => {
+    const file = input.files?.[0];
+    if(!file) return;
+    $("articleImage").value = URL.createObjectURL(file);
+  });
+}
+setupImagePreviewInput();
 
 
 $("createArticle").addEventListener("click",()=>openArticle());
@@ -697,6 +784,122 @@ $("deleteEvent").addEventListener("click", async ()=>{
 document.querySelectorAll("[data-close]").forEach(btn=>{
   btn.addEventListener("click",() => $(btn.dataset.close).close());
 });
+
+
+
+/* v8: robust admin controls delegation
+   Fixes dynamic buttons even if previous listeners fail after renders or new dialogs. */
+function openArticleSelector(context){
+  selectContext = context;
+  $("selectDialogTitle").textContent = context.key === "rotation" ? "Seleccionar reseña" : (context.isNewSlot ? "Agregar destacada" : "Seleccionar artículo");
+  $("selectArticleSearch").value = "";
+  renderSelectList();
+  $("selectArticleDialog").showModal();
+}
+
+function setupRobustAdminDelegation(){
+  document.addEventListener("click", async (e) => {
+    const closeBtn = e.target.closest("[data-close]");
+    if(closeBtn){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const dialog = $(closeBtn.dataset.close);
+      if(dialog?.close) dialog.close();
+      return;
+    }
+
+    const configBtn = e.target.closest("#githubImageConfig");
+    if(configBtn){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const cfg = getGitHubImageConfig();
+      $("githubOwner").value = cfg.owner;
+      $("githubRepo").value = cfg.repo;
+      $("githubBranch").value = cfg.branch;
+      $("githubUploadPath").value = cfg.uploadPath;
+      $("githubPublicBaseUrl").value = cfg.publicBaseUrl;
+      $("githubToken").value = cfg.token;
+      $("githubDialog").showModal();
+      return;
+    }
+
+    const editArticle = e.target.closest("[data-edit-article]");
+    if(editArticle){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openArticle(editArticle.dataset.editArticle);
+      return;
+    }
+
+    const addFeatured = e.target.closest("#addFeaturedSlot");
+    if(addFeatured){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(hero.autoFeatured || hero.featured.length >= 5) return;
+      openArticleSelector({ key:"featured", index:hero.featured.length, filter:"published", isNewSlot:true });
+      return;
+    }
+
+    const removeFeatured = e.target.closest("[data-remove-featured]");
+    if(removeFeatured){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(removeFeatured.disabled || hero.autoFeatured) return;
+      const index = Number(removeFeatured.dataset.removeFeatured);
+      if(hero.featured.length > 3){
+        hero.featured.splice(index, 1);
+        await saveHeroOnly();
+        renderHero();
+      }
+      return;
+    }
+
+    const selectSlot = e.target.closest("[data-select-slot]");
+    if(selectSlot){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(selectSlot.dataset.selectSlot === "featured" && hero.autoFeatured) return;
+      openArticleSelector({
+        key: selectSlot.dataset.selectSlot,
+        index: Number(selectSlot.dataset.index),
+        filter: selectSlot.dataset.filter
+      });
+      return;
+    }
+
+    const pickArticle = e.target.closest("[data-pick-article]");
+    if(pickArticle){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(!selectContext) return;
+      hero[selectContext.key][selectContext.index] = pickArticle.dataset.pickArticle;
+      if(selectContext.key === "featured") hero.featured = hero.featured.filter(Boolean).slice(0,5);
+      await saveHeroOnly();
+      renderHero();
+      $("selectArticleDialog").close();
+      return;
+    }
+  }, true);
+
+  const githubForm = $("githubForm");
+  if(githubForm && !githubForm.dataset.v8Bound){
+    githubForm.dataset.v8Bound = "true";
+    githubForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      localStorage.setItem("drkprty-github-owner", $("githubOwner").value.trim());
+      localStorage.setItem("drkprty-github-repo", $("githubRepo").value.trim());
+      localStorage.setItem("drkprty-github-branch", $("githubBranch").value.trim() || "main");
+      localStorage.setItem("drkprty-github-upload-path", $("githubUploadPath").value.trim() || "assets/uploads");
+      localStorage.setItem("drkprty-github-public-base-url", $("githubPublicBaseUrl").value.trim());
+      localStorage.setItem("drkprty-github-token", $("githubToken").value.trim());
+      $("githubDialog").close();
+      alert("Configuración de GitHub guardada en este navegador.");
+    });
+  }
+}
+
+setupRobustAdminDelegation();
+
 
 $("exportAll").addEventListener("click",()=>{
   download("orbita-content-export.json", {articles, events, hero:{

@@ -1,0 +1,10 @@
+DRKPRTY v8 Admin Fixes
+
+Correcciones:
+- Los botones dinámicos de editar artículo funcionan con delegación robusta.
+- Agregar destacada funciona aunque el render vuelva a crear botones.
+- Seleccionar destacada / elegir artículo funciona con delegación robusta.
+- Cerrar modales funciona aunque el diálogo de GitHub se agregue dinámicamente.
+- El diálogo de configuración GitHub ahora está antes de los scripts.
+- Drag & drop en destacadas mantiene la posición de scroll y tiene estados visuales.
+- Select dialog tiene scroll interno para listas largas.

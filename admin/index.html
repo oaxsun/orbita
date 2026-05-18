@@ -51,8 +51,9 @@
     </nav>
 
     <div class="sidebar-note">
-      <strong>Modo estático</strong>
-      <p>Los cambios se guardan en este navegador. Usa Exportar JSON para subirlos al repo o conectarlo después a Decap/GitHub.</p>
+      <strong>Imágenes en GitHub</strong>
+      <p>Configura un token personal para subir imágenes al repo desde el admin.</p>
+      <button id="githubImageConfig" type="button">Configurar GitHub</button>
     </div>
   </aside>
 
@@ -142,6 +143,11 @@
 
       <label>Imagen URL
         <input id="articleImage" required placeholder="https://..." />
+      </label>
+
+      <label>Subir imagen al repo de GitHub
+        <input id="articleImageFile" type="file" accept="image/*" />
+        <small class="field-help">Opcional: sube una imagen y el admin llenará automáticamente la URL pública de GitHub Pages.</small>
       </label>
 
       <label>Título
@@ -268,6 +274,50 @@
   </div>
 
 
+
+
+  <dialog id="githubDialog">
+    <form method="dialog" class="modal-form" id="githubForm">
+      <header>
+        <h3>Configurar subida a GitHub</h3>
+        <button type="button" class="ghost" data-close="githubDialog">Cerrar</button>
+      </header>
+
+      <p class="muted">Estos datos se guardan solo en tu navegador. Usa un fine-grained token con acceso únicamente a este repo.</p>
+
+      <label>Owner / usuario
+        <input id="githubOwner" placeholder="oaxsun" required />
+      </label>
+
+      <label>Repo
+        <input id="githubRepo" placeholder="orbita" required />
+      </label>
+
+      <label>Branch
+        <input id="githubBranch" placeholder="main" required />
+      </label>
+
+      <label>Carpeta de imágenes
+        <input id="githubUploadPath" placeholder="assets/uploads" required />
+      </label>
+
+      <label>URL pública del sitio
+        <input id="githubPublicBaseUrl" placeholder="https://oaxsun.github.io/orbita" required />
+      </label>
+
+      <label>GitHub Personal Access Token
+        <input id="githubToken" type="password" placeholder="github_pat_..." required />
+        <small class="field-help">No lo subas a GitHub. Se queda en localStorage de este navegador.</small>
+      </label>
+
+      <menu>
+        <button type="button" data-close="githubDialog">Cancelar</button>
+        <button class="primary" type="submit">Guardar configuración</button>
+      </menu>
+    </form>
+  </dialog>
+
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -288,12 +338,6 @@
       query,
       orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import {
-      getStorage,
-      ref,
-      uploadBytes,
-      getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBF7dI6cLaec1hMO6sRYyKTbgmhptq0OEM",
@@ -307,7 +351,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     window.orbitaFirebase = {
       auth,
@@ -323,11 +366,7 @@
       deleteDoc,
       serverTimestamp,
       query,
-      orderBy,
-      storage,
-      ref,
-      uploadBytes,
-      getDownloadURL
+      orderBy
     };
   </script>
 
