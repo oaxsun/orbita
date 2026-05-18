@@ -1,4 +1,4 @@
-# Órbita Web v2
+# DRKPRTY Web v2
 
 Archivos incluidos:
 - index.html: home
@@ -198,14 +198,14 @@ v25:
 
 
 v26:
-- Corrección crítica: el sitio público ahora usa ORBITA_ARTICLES desde Firestore en lugar del const ARTICLES de data.js.
+- Corrección crítica: el sitio público ahora usa DRKPRTY_ARTICLES desde Firestore en lugar del const ARTICLES de data.js.
 - Antes Firebase sí podía cargar artículos, pero la web seguía leyendo el fallback local.
 - Agregado console.info para verificar cuántos artículos se cargan desde Firebase.
 
 
 v27:
 - Corrección pública completa: script.js ahora sí espera cargar Firestore antes de renderizar.
-- Home, News, Article y Events usan ORBITA_ARTICLES/ORBITA_EVENTS/ORBITA_HERO si existen.
+- Home, News, Article y Events usan DRKPRTY_ARTICLES/DRKPRTY_EVENTS/DRKPRTY_HERO si existen.
 - El fallback data.js solo se usa si Firestore falla o no tiene datos.
 
 
@@ -214,7 +214,7 @@ v28:
 - El sitio ya no muestra data.js si Firebase carga correctamente.
 - Se removió ADMIN del menú público.
 - Carga pública sin orderBy para evitar fallos por campos faltantes.
-- Console log: "Órbita Firebase loaded" muestra cuántos artículos/eventos cargó.
+- Console log: "DRKPRTY Firebase loaded" muestra cuántos artículos/eventos cargó.
 
 
 v29:
@@ -237,7 +237,7 @@ v31:
 - Carga Firestore primero, luego renderiza.
 - Sin fallback a data.js.
 - Destacadas, New Topics, En Rotación y Eventos solo muestran Firestore/admin.
-- Agregado log: "Órbita render data".
+- Agregado log: "DRKPRTY render data".
 
 
 v32:

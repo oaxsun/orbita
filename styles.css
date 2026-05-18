@@ -3242,3 +3242,22 @@ body.dark .featured-slide .desc{
 .share a[data-copy-link]{
   cursor:pointer;
 }
+
+
+/* DRKPRTY logo */
+.brand-eye{
+  width:54px;
+  height:54px;
+  object-fit:cover;
+  border:3px solid var(--text);
+  border-radius:999px;
+  background:#000;
+  box-shadow:4px 4px 0 var(--shadow);
+}
+
+@media(max-width:980px){
+  .brand-eye{
+    width:42px;
+    height:42px;
+  }
+}

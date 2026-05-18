@@ -9,9 +9,9 @@ import {
 
 const firebaseConfig = {
   apiKey: "AIzaSyBF7dI6cLaec1hMO6sRYyKTbgmhptq0OEM",
-  authDomain: "orbita-727cd.firebaseapp.com",
-  projectId: "orbita-727cd",
-  storageBucket: "orbita-727cd.firebasestorage.app",
+  authDomain: "drkprty-727cd.firebaseapp.com",
+  projectId: "drkprty-727cd",
+  storageBucket: "drkprty-727cd.firebasestorage.app",
   messagingSenderId: "823174769372",
   appId: "1:823174769372:web:c0b62f90917c035dbb6219"
 };
@@ -31,7 +31,7 @@ async function loadFirebaseContent(){
     const eventsSnap = await getDocs(collection(db, "events"));
     const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
 
-    window.ORBITA_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+    window.DRKPRTY_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
       .filter(a => a.published !== false)
       .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now())
       .sort((a,b) => articleTime(b) - articleTime(a));
@@ -39,36 +39,36 @@ async function loadFirebaseContent(){
     const today = new Date();
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
 
-    window.ORBITA_EVENTS = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+    window.DRKPRTY_EVENTS = eventsSnap.docs.map(d => ({ id:d.id, ...d.data() }))
       .filter(e => !e.sortDate || Number(e.sortDate) >= Number(todayStart))
       .sort((a,b) => Number(a.sortDate || 0) - Number(b.sortDate || 0));
 
-    window.ORBITA_HERO = heroSnap.exists() ? heroSnap.data() : null;
+    window.DRKPRTY_HERO = heroSnap.exists() ? heroSnap.data() : null;
 
-    console.info("Órbita Firebase loaded", {
-      articles: window.ORBITA_ARTICLES.length,
-      events: window.ORBITA_EVENTS.length,
-      hero: window.ORBITA_HERO
+    console.info("DRKPRTY Firebase loaded", {
+      articles: window.DRKPRTY_ARTICLES.length,
+      events: window.DRKPRTY_EVENTS.length,
+      hero: window.DRKPRTY_HERO
     });
   }catch(err){
-    window.ORBITA_ARTICLES = [];
-    window.ORBITA_EVENTS = [];
-    window.ORBITA_HERO = null;
-    console.error("Órbita Firebase failed", err);
+    window.DRKPRTY_ARTICLES = [];
+    window.DRKPRTY_EVENTS = [];
+    window.DRKPRTY_HERO = null;
+    console.error("DRKPRTY Firebase failed", err);
   }
 }
 
 
 function getArticles(){
-  return Array.isArray(window.ORBITA_ARTICLES) ? window.ORBITA_ARTICLES : [];
+  return Array.isArray(window.DRKPRTY_ARTICLES) ? window.DRKPRTY_ARTICLES : [];
 }
 
 function getEvents(){
-  return Array.isArray(window.ORBITA_EVENTS) ? window.ORBITA_EVENTS : [];
+  return Array.isArray(window.DRKPRTY_EVENTS) ? window.DRKPRTY_EVENTS : [];
 }
 
 function getHeroConfig(){
-  return window.ORBITA_HERO || null;
+  return window.DRKPRTY_HERO || null;
 }
 
 const TAGS = [
@@ -220,7 +220,7 @@ function renderArticlePage(){
     return;
   }
 
-  document.title = `${article.title} — Órbita`;
+  document.title = `${article.title} — DRKPRTY`;
 
   const related = articles.filter(a => a.id !== article.id).slice(0,6);
 
@@ -230,7 +230,7 @@ function renderArticlePage(){
       <h1>${article.title || ""}</h1>
       <p class="desc">${article.excerpt || ""}</p>
       <div class="article-meta">
-        <span>☻ POR ${article.author || "ÓRBITA"}</span>
+        <span>☻ POR ${article.author || "DRKPRTY"}</span>
         <span>${article.date || ""}</span>
         <span>${article.read || "3 MIN DE LECTURA"}</span>
       </div>
@@ -282,7 +282,7 @@ function renderFeatured(){
   if(!selected.length){
     track.innerHTML = `
       <div class="featured-slide active empty-featured">
-        <span class="pickup">ÓRBITA</span>
+        <span class="pickup">DRKPRTY</span>
         <p class="tiny">SIN DESTACADAS</p>
         <h2>AGREGA ARTÍCULOS DESDE EL ADMINISTRADOR</h2>
         <p class="desc">Cuando selecciones destacadas en el CMS, aparecerán aquí automáticamente.</p>
@@ -353,7 +353,7 @@ function renderRotation(){
     .slice(0,5);
 
   selector.innerHTML = rotationArticles.map((a, i) => `
-    <button type="button" class="${i === 0 ? "active" : ""}" data-title="${escapeAttr(a.title)}" data-artist="${escapeAttr(a.author || 'ÓRBITA')}" data-desc="${escapeAttr(a.excerpt)}" data-label="${escapeAttr(a.category)}" data-link="article.html?id=${a.id}" data-cover="${escapeAttr(a.image)}">
+    <button type="button" class="${i === 0 ? "active" : ""}" data-title="${escapeAttr(a.title)}" data-artist="${escapeAttr(a.author || 'DRKPRTY')}" data-desc="${escapeAttr(a.excerpt)}" data-label="${escapeAttr(a.category)}" data-link="article.html?id=${a.id}" data-cover="${escapeAttr(a.image)}">
       <strong>${String(i + 1).padStart(2,"0")}</strong><div><h4>${a.title}</h4><p>${a.category}</p></div>
     </button>
   `).join("");
@@ -361,7 +361,7 @@ function renderRotation(){
   if(rotationArticles.length){
     const first = rotationArticles[0];
     if(title) title.textContent = first.title || "";
-    if(artist) artist.textContent = first.author || "ÓRBITA";
+    if(artist) artist.textContent = first.author || "DRKPRTY";
     if(desc) desc.textContent = first.excerpt || "";
     if(label) label.textContent = first.category || "RESEÑA";
     setRotationCover(first.image || "");
@@ -510,19 +510,19 @@ function showCopyToast(message){
   toast.textContent = message;
   toast.classList.add("active");
 
-  clearTimeout(window.__orbitaCopyToastTimer);
-  window.__orbitaCopyToastTimer = setTimeout(() => {
+  clearTimeout(window.__drkprtyCopyToastTimer);
+  window.__drkprtyCopyToastTimer = setTimeout(() => {
     toast.classList.remove("active");
   }, 1800);
 }
 
 
-async function initOrbitaSite(){
+async function initDRKPRTYSite(){
   setupTheme();
 
   await loadFirebaseContent();
 
-  console.info("Órbita render data", {
+  console.info("DRKPRTY render data", {
     articles:getArticles().length,
     events:getEvents().length,
     hero:getHeroConfig()
@@ -539,4 +539,4 @@ async function initOrbitaSite(){
   setupShareCopy();
 }
 
-initOrbitaSite();
+initDRKPRTYSite();
