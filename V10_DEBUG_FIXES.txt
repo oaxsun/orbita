@@ -1,9 +1,0 @@
-DRKPRTY v10
-
-Correcciones:
-- Public loader más tolerante con campos published/status y fechas publishAt.
-- Agrega window.DRKPRTY_DEBUG_DATA para ver conteos en consola.
-- Agrega debug-firestore.html para verificar cuántos artículos lee la web pública.
-- Hero admin siempre muestra mínimo 3 slots de destacadas aunque hero.featured venga vacío.
-- Agregar/seleccionar destacada desactiva autoFeatured automáticamente para permitir edición manual.
-- Delegación directa de clicks para agregar, seleccionar y elegir destacadas.
