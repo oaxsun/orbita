@@ -1,7 +1,0 @@
-DRKPRTY v12 Admin Fixes
-
-- Manual despublicar ahora se respeta.
-- Programadas ya no aparecen en No publicadas; solo en Programadas.
-- Agregar destacada / seleccionar destacada / elegir artículo ahora usan un handler limpio.
-- Reordenar destacadas por drag & drop reforzado.
-- admin.js usa cache busting ?v=12.
