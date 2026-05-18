@@ -32,7 +32,11 @@ async function loadFirebaseContent(){
     const heroSnap = await getDoc(doc(db, "siteConfig", "hero"));
 
     window.ORBITA_ARTICLES = articlesSnap.docs.map(d => ({ id:d.id, ...d.data() }))
-      .filter(a => a.published !== false)
+      .filter(a => {
+        const publishTime = a.publishAt ? new Date(a.publishAt).getTime() : null;
+        const scheduledIsDue = publishTime && publishTime <= Date.now();
+        return a.published !== false || scheduledIsDue;
+      })
       .filter(a => !a.publishAt || new Date(a.publishAt).getTime() <= Date.now())
       .sort((a,b) => articleTime(b) - articleTime(a));
 
@@ -115,6 +119,22 @@ function getCurrentFilter(){
   return new URLSearchParams(window.location.search).get("tag");
 }
 
+function getCurrentCategory(){
+  return new URLSearchParams(window.location.search).get("category");
+}
+
+function getArchiveTitle(){
+  const category = getCurrentCategory();
+  if(category === "RESEÑA") return "TODAS LAS REVIEWS";
+  if(category === "ENTREVISTA") return "TODAS LAS INTERVIEWS";
+  return "TODAS LAS NEWS";
+}
+
+function updateArchiveTitle(){
+  const title = document.getElementById("archiveTitle");
+  if(title) title.textContent = getArchiveTitle();
+}
+
 function renderHashtags(){
   const track = document.getElementById("hashtagTrack");
   if(!track) return;
@@ -142,9 +162,12 @@ function renderArticles(){
 
   const articles = getArticles();
   const current = getCurrentFilter();
+  const category = getCurrentCategory();
   const isNewsPage = window.location.pathname.includes("news.html");
 
-  let filtered = current ? articles.filter(a => Array.isArray(a.tags) && a.tags.includes(current)) : articles;
+  let filtered = articles;
+  if(current) filtered = filtered.filter(a => Array.isArray(a.tags) && a.tags.includes(current));
+  if(category) filtered = filtered.filter(a => String(a.category || "").toUpperCase() === category.toUpperCase());
 
   if(!isNewsPage){
     const topics = getHeroConfig()?.topics || [];
@@ -245,8 +268,7 @@ function renderArticlePage(){
     <aside class="article-sidebar">
       <h3>COMPARTIR</h3>
       <div class="share">
-        <a href="#" data-copy-link>↗</a>
-        <a href="#" data-copy-link>COPIAR</a>
+        <a href="#" data-copy-link title="Copiar link">↗</a>
       </div>
 
       <h3>TAGS</h3>
@@ -517,6 +539,32 @@ function showCopyToast(message){
 }
 
 
+
+function setupScrollTopButton(){
+  let btn = document.getElementById("scrollTopBtn");
+  if(!btn){
+    btn = document.createElement("button");
+    btn.id = "scrollTopBtn";
+    btn.className = "scroll-top-btn";
+    btn.type = "button";
+    btn.textContent = "↑";
+    btn.setAttribute("aria-label", "Volver arriba");
+    document.body.appendChild(btn);
+  }
+
+  const toggle = () => {
+    btn.classList.toggle("active", window.scrollY > 520);
+  };
+
+  window.addEventListener("scroll", toggle, { passive:true });
+  toggle();
+
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+}
+
+
 async function initOrbitaSite(){
   setupTheme();
 
@@ -529,6 +577,7 @@ async function initOrbitaSite(){
   });
 
   renderHashtags();
+  updateArchiveTitle();
   renderFeatured();
   renderArticles();
   renderArticlePage();
@@ -537,6 +586,7 @@ async function initOrbitaSite(){
   setupFeaturedCarousel();
   setupRotationSelector();
   setupShareCopy();
+  setupScrollTopButton();
 }
 
 initOrbitaSite();

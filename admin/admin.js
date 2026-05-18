@@ -108,8 +108,10 @@ function purgePastEvents(){
 }
 
 function isPublished(article){
+  const publishTime = article.publishAt ? new Date(article.publishAt).getTime() : null;
+  if(publishTime && publishTime <= Date.now()) return true;
   if(article.published === false) return false;
-  if(article.publishAt && new Date(article.publishAt).getTime() > Date.now()) return false;
+  if(publishTime && publishTime > Date.now()) return false;
   return true;
 }
 
@@ -420,6 +422,7 @@ function renderArticles(){
   let list = sortedArticles(articles).filter(a=>articleMatches(a, articleSearch));
   if(articleTab === "published") list = list.filter(isPublished);
   if(articleTab === "unpublished") list = list.filter(a=>!isPublished(a));
+  if(articleTab === "scheduled") list = list.filter(a=>a.publishAt && new Date(a.publishAt).getTime() > Date.now());
 
   $("articleList").innerHTML = list.map(a=>{
     const s = statusOf(a);
